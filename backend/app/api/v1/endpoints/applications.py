@@ -1,0 +1,217 @@
+"""
+Application management endpoints
+"""
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from typing import List, Optional
+from datetime import datetime
+
+from app.db.database import get_db
+from app.models.user import User
+from app.models.application import Application, ApplicationStatus
+from app.models.job_posting import JobPosting
+from app.schemas.application import (
+    ApplicationResponse,
+    ApplicationCreate,
+    ApplicationUpdate
+)
+from app.core.dependencies import get_current_user
+
+router = APIRouter()
+
+
+@router.get("/", response_model=List[ApplicationResponse])
+def list_applications(
+    status_filter: Optional[str] = None,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    List user's job applications
+    Optionally filter by status
+    """
+    query = db.query(Application).filter(Application.user_id == current_user.id)
+
+    if status_filter:
+        try:
+            status_enum = ApplicationStatus(status_filter)
+            query = query.filter(Application.status == status_enum)
+        except ValueError:
+            pass  # Invalid status, ignore filter
+
+    applications = query.order_by(Application.applied_date.desc()).all()
+    return applications
+
+
+@router.get("/{application_id}", response_model=ApplicationResponse)
+def get_application(
+    application_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get a specific application by ID
+    """
+    application = db.query(Application).filter(
+        Application.id == application_id,
+        Application.user_id == current_user.id
+    ).first()
+
+    if not application:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Application not found"
+        )
+
+    return application
+
+
+@router.post("/", response_model=ApplicationResponse, status_code=status.HTTP_201_CREATED)
+def create_application(
+    application_data: ApplicationCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Submit a new job application
+    """
+    # Check if job posting exists
+    job_posting = db.query(JobPosting).filter(
+        JobPosting.id == application_data.job_posting_id
+    ).first()
+
+    if not job_posting:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Job posting not found"
+        )
+
+    # Check if user already applied to this job
+    existing_application = db.query(Application).filter(
+        Application.user_id == current_user.id,
+        Application.job_posting_id == application_data.job_posting_id
+    ).first()
+
+    if existing_application:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You have already applied to this position"
+        )
+
+    # Create timeline event
+    timeline = [{
+        "status": ApplicationStatus.PENDING.value,
+        "timestamp": datetime.utcnow().isoformat(),
+        "note": "Application submitted"
+    }]
+
+    # Create application
+    new_application = Application(
+        user_id=current_user.id,
+        job_posting_id=application_data.job_posting_id,
+        cover_letter=application_data.cover_letter,
+        status=ApplicationStatus.PENDING,
+        timeline=timeline
+    )
+
+    db.add(new_application)
+    db.commit()
+    db.refresh(new_application)
+
+    return new_application
+
+
+@router.put("/{application_id}", response_model=ApplicationResponse)
+def update_application(
+    application_id: str,
+    application_data: ApplicationUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Update an application (for HR/Admin to change status or candidate to update cover letter)
+    """
+    application = db.query(Application).filter(
+        Application.id == application_id
+    ).first()
+
+    if not application:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Application not found"
+        )
+
+    # Candidates can only update their own applications
+    if current_user.role.value == "candidate" and application.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only update your own applications"
+        )
+
+    # Update status if changed
+    if application_data.status and application_data.status != application.status.value:
+        try:
+            new_status = ApplicationStatus(application_data.status)
+            old_status = application.status.value
+
+            # Add timeline event
+            timeline = application.timeline or []
+            timeline.append({
+                "status": new_status.value,
+                "timestamp": datetime.utcnow().isoformat(),
+                "note": f"Status changed from {old_status} to {new_status.value}"
+            })
+
+            application.status = new_status
+            application.timeline = timeline
+        except ValueError:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid status value"
+            )
+
+    # Update cover letter if provided
+    if application_data.cover_letter is not None:
+        application.cover_letter = application_data.cover_letter
+
+    db.commit()
+    db.refresh(application)
+
+    return application
+
+
+@router.delete("/{application_id}")
+def delete_application(
+    application_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Withdraw/delete an application
+    """
+    application = db.query(Application).filter(
+        Application.id == application_id,
+        Application.user_id == current_user.id
+    ).first()
+
+    if not application:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Application not found"
+        )
+
+    # Mark as withdrawn instead of deleting
+    application.status = ApplicationStatus.WITHDRAWN
+
+    # Add timeline event
+    timeline = application.timeline or []
+    timeline.append({
+        "status": ApplicationStatus.WITHDRAWN.value,
+        "timestamp": datetime.utcnow().isoformat(),
+        "note": "Application withdrawn by candidate"
+    })
+    application.timeline = timeline
+
+    db.commit()
+
+    return {"message": "Application withdrawn successfully"}

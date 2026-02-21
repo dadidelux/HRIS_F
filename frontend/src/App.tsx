@@ -1,0 +1,77 @@
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import Layout from './components/Layout';
+import LoginPage from './pages/LoginPage';
+import DashboardPage from './pages/DashboardPage';
+import JobPostingsPage from './pages/JobPostingsPage';
+import ProfilePage from './pages/ProfilePage';
+import ApplicationsPage from './pages/ApplicationsPage';
+import InterviewsPage from './pages/InterviewsPage';
+
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/login" element={<LoginPage />} />
+
+          {/* Protected Routes */}
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Layout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Navigate to="/dashboard" replace />} />
+            <Route path="dashboard" element={<DashboardPage />} />
+            <Route path="job-postings" element={<JobPostingsPage />} />
+            <Route path="applications" element={<ApplicationsPage />} />
+            <Route path="interviews" element={<InterviewsPage />} />
+            <Route
+              path="analytics"
+              element={
+                <div className="p-8 text-center">
+                  <p className="text-gray-500">Analytics - Coming soon!</p>
+                </div>
+              }
+            />
+            <Route
+              path="reports"
+              element={
+                <div className="p-8 text-center">
+                  <p className="text-gray-500">Reports - Coming soon!</p>
+                </div>
+              }
+            />
+            <Route path="profile" element={<ProfilePage />} />
+            <Route
+              path="settings"
+              element={
+                <div className="p-8 text-center">
+                  <p className="text-gray-500">Settings - Coming soon!</p>
+                </div>
+              }
+            />
+            <Route
+              path="help"
+              element={
+                <div className="p-8 text-center">
+                  <p className="text-gray-500">Help Center - Coming soon!</p>
+                </div>
+              }
+            />
+          </Route>
+
+          {/* Catch all */}
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
+  );
+}
+
+export default App;

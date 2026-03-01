@@ -10,6 +10,7 @@ from app.schemas.job_posting import (
     JobPostingUpdate,
     JobPostingResponse,
 )
+from app.services.matching.cache_service import cache_service
 
 router = APIRouter()
 
@@ -65,8 +66,15 @@ def update_job_posting(
         )
 
     update_data = job_data.model_dump(exclude_unset=True)
+
+    old_requirements = list(job_posting.requirements or [])
+    requirements_changed = "requirements" in update_data
+
     for field, value in update_data.items():
         setattr(job_posting, field, value)
+
+    if requirements_changed:
+        cache_service.delete_embeddings_by_texts(db, old_requirements)
 
     db.commit()
     db.refresh(job_posting)

@@ -3,11 +3,16 @@ import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import JobPostingsPage from './pages/JobPostingsPage';
 import ProfilePage from './pages/ProfilePage';
 import ApplicationsPage from './pages/ApplicationsPage';
 import InterviewsPage from './pages/InterviewsPage';
+import BrowseJobsPage from './pages/BrowseJobsPage';
+import MyApplicationsPage from './pages/MyApplicationsPage';
+import MyInterviewsPage from './pages/MyInterviewsPage';
+import CandidateMatchingPage from './pages/CandidateMatchingPage';
 
 function App() {
   return (
@@ -16,6 +21,7 @@ function App() {
         <Routes>
           {/* Public Routes */}
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
 
           {/* Protected Routes */}
           <Route
@@ -28,9 +34,15 @@ function App() {
           >
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<DashboardPage />} />
+            {/* HR/Admin Routes */}
             <Route path="job-postings" element={<JobPostingsPage />} />
             <Route path="applications" element={<ApplicationsPage />} />
             <Route path="interviews" element={<InterviewsPage />} />
+            <Route path="matching" element={<CandidateMatchingPage />} />
+            {/* Candidate Routes */}
+            <Route path="jobs" element={<BrowseJobsPage />} />
+            <Route path="my-applications" element={<MyApplicationsPage />} />
+            <Route path="my-interviews" element={<MyInterviewsPage />} />
             <Route
               path="analytics"
               element={
@@ -48,22 +60,8 @@ function App() {
               }
             />
             <Route path="profile" element={<ProfilePage />} />
-            <Route
-              path="settings"
-              element={
-                <div className="p-8 text-center">
-                  <p className="text-gray-500">Settings - Coming soon!</p>
-                </div>
-              }
-            />
-            <Route
-              path="help"
-              element={
-                <div className="p-8 text-center">
-                  <p className="text-gray-500">Help Center - Coming soon!</p>
-                </div>
-              }
-            />
+            <Route path="settings" element={<ProfilePage />} />
+            <Route path="help" element={<ProfilePage />} />
           </Route>
 
           {/* Catch all */}

@@ -1,16 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { User, Settings, HelpCircle } from 'lucide-react';
+import { User, Settings, HelpCircle, FileText } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { apiService, Profile, ProfileUpdate, ChangePasswordRequest } from '../services/api';
 import ProfileTab from '../components/profile/ProfileTab';
+import ResumeTab from '../components/profile/ResumeTab';
 import SettingsTab from '../components/profile/SettingsTab';
 import HelpCenterTab from '../components/profile/HelpCenterTab';
 
-type TabType = 'profile' | 'settings' | 'help';
+type TabType = 'profile' | 'resume' | 'settings' | 'help';
 
 const ProfilePage: React.FC = () => {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<TabType>('profile');
+  const location = useLocation();
+  const isCandidate = user?.role?.toLowerCase() === 'candidate';
+
+  const getInitialTab = (): TabType => {
+    if (location.pathname === '/settings') return 'settings';
+    if (location.pathname === '/help') return 'help';
+    return 'profile';
+  };
+
+  const [activeTab, setActiveTab] = useState<TabType>(getInitialTab());
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -41,10 +52,11 @@ const ProfilePage: React.FC = () => {
   };
 
   const tabs = [
-    { id: 'profile' as TabType, label: 'My Profile', icon: User },
-    { id: 'settings' as TabType, label: 'Settings', icon: Settings },
-    { id: 'help' as TabType, label: 'Help Center', icon: HelpCircle },
-  ];
+    { id: 'profile' as TabType, label: 'My Profile', icon: User, show: true },
+    { id: 'resume' as TabType, label: 'Resume', icon: FileText, show: isCandidate },
+    { id: 'settings' as TabType, label: 'Settings', icon: Settings, show: true },
+    { id: 'help' as TabType, label: 'Help Center', icon: HelpCircle, show: true },
+  ].filter((t) => t.show);
 
   if (loading) {
     return (
@@ -112,9 +124,8 @@ const ProfilePage: React.FC = () => {
         {activeTab === 'profile' && (
           <ProfileTab profile={profile} user={user} onUpdate={handleUpdateProfile} />
         )}
-        {activeTab === 'settings' && (
-          <SettingsTab onChangePassword={handleChangePassword} />
-        )}
+        {activeTab === 'resume' && isCandidate && <ResumeTab />}
+        {activeTab === 'settings' && <SettingsTab onChangePassword={handleChangePassword} />}
         {activeTab === 'help' && <HelpCenterTab />}
       </div>
     </div>

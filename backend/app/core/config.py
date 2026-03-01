@@ -18,6 +18,11 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
+    # Gemini API (Resume Parsing)
+    GEMINI_API_KEY: str = ""
+    MAX_RESUME_SIZE_MB: int = 10
+    ALLOWED_RESUME_TYPES: List[str] = ["application/pdf"]
+
     class Config:
         env_file = ".env"
         case_sensitive = True

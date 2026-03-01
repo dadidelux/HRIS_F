@@ -3,7 +3,7 @@ export interface JobPosting {
   jobTitle: string;
   department: string;
   location: string;
-  status: 'Active' | 'Inactive' | 'Closed';
+  status: string;
   datePosted: string;
   applicationDeadline: string;
   description: string;

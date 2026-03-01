@@ -2,7 +2,7 @@
 Application management endpoints
 """
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from typing import List, Optional
 from datetime import datetime
 
@@ -27,10 +27,15 @@ def list_applications(
     db: Session = Depends(get_db)
 ):
     """
-    List user's job applications
-    Optionally filter by status
+    List applications
+    - HR/Admin: See all applications
+    - Candidates: See only their own applications
     """
-    query = db.query(Application).filter(Application.user_id == current_user.id)
+    query = db.query(Application).options(joinedload(Application.job_posting))
+
+    # Role-based filtering
+    if current_user.role.value == "candidate":
+        query = query.filter(Application.user_id == current_user.id)
 
     if status_filter:
         try:
@@ -41,6 +46,38 @@ def list_applications(
 
     applications = query.order_by(Application.applied_date.desc()).all()
     return applications
+
+
+@router.get("/my")
+def get_my_applications(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get current user's applications with job posting details
+    For candidate dashboard
+    """
+    applications = db.query(Application).options(
+        joinedload(Application.job_posting)
+    ).filter(
+        Application.user_id == current_user.id
+    ).order_by(Application.applied_date.desc()).all()
+
+    # Format for frontend
+    result = []
+    for app in applications:
+        result.append({
+            "id": str(app.id),
+            "job_posting_id": str(app.job_posting_id),
+            "job_title": app.job_posting.job_title if app.job_posting else "Unknown",
+            "department": app.job_posting.department if app.job_posting else "Unknown",
+            "location": app.job_posting.location if app.job_posting else "Unknown",
+            "status": app.status.value,
+            "applied_at": app.applied_date.isoformat(),
+            "updated_at": app.updated_at.isoformat(),
+        })
+
+    return result
 
 
 @router.get("/{application_id}", response_model=ApplicationResponse)

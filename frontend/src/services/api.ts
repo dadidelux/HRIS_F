@@ -3,9 +3,12 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 export interface JobPosting {
   id: string;
   job_title: string;
+  title?: string; // Alias for candidate pages
   department: string;
   location: string;
-  status: 'Active' | 'Inactive' | 'Closed';
+  status: string;
+  employment_type?: string;
+  salary_range?: string;
   date_posted: string;
   application_deadline: string;
   description: string;
@@ -102,6 +105,10 @@ export interface ChangePasswordRequest {
   new_password: string;
 }
 
+export interface UserMeUpdate {
+  full_name?: string;
+}
+
 export interface Application {
   id: string;
   user_id: string;
@@ -176,6 +183,43 @@ export interface InterviewUpdate {
   status?: string;
   notes?: string;
   interviewer_name?: string;
+}
+
+export interface CandidateMatchScore {
+  total_score: number;   // 0-100
+  semantic_score: number; // 0-1
+  keyword_score: number;  // 0-1
+}
+
+export interface RankedCandidate {
+  user_id: string;
+  full_name: string;
+  email: string;
+  skills: string[];
+  has_resume: boolean;
+  scores: CandidateMatchScore;
+}
+
+export interface JobMatchingResponse {
+  job_id: string;
+  job_title: string;
+  requirements: string[];
+  total_candidates: number;
+  ranked_candidates: RankedCandidate[];
+  computed_at: string;
+}
+
+export interface PrecomputeResponse {
+  job_id: string;
+  candidates_processed: number;
+  embeddings_cached: number;
+  message: string;
+}
+
+export interface CacheDeleteResponse {
+  job_id: string;
+  entries_deleted: number;
+  message: string;
 }
 
 class ApiService {
@@ -275,6 +319,31 @@ class ApiService {
       body: JSON.stringify(data),
     });
     return this.handleResponse(response);
+  }
+
+  async updateCurrentUser(data: UserMeUpdate): Promise<User> {
+    const response = await fetch(`${this.baseUrl}/users/me`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return this.handleResponse(response);
+  }
+
+  async uploadAvatar(file: File): Promise<User> {
+    const formData = new FormData();
+    formData.append('file', file);
+    const { 'Content-Type': _omit, ...headers } = this.getAuthHeaders() as Record<string, string>;
+    const response = await fetch(`${this.baseUrl}/users/me/avatar`, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+    return this.handleResponse(response);
+  }
+
+  getAvatarUrl(userId: string): string {
+    return `${this.baseUrl}/users/${userId}/avatar`;
   }
 
   async changePassword(data: ChangePasswordRequest): Promise<{ message: string }> {
@@ -417,6 +486,138 @@ class ApiService {
 
   async deleteJobPosting(id: string): Promise<void> {
     const response = await fetch(`${this.baseUrl}/job-postings/${id}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders(),
+    });
+    return this.handleResponse(response);
+  }
+
+  // Candidate-specific methods
+  async getJobPostings(): Promise<JobPosting[]> {
+    // Get all job postings (candidates see only active ones)
+    const response = await fetch(`${this.baseUrl}/job-postings/`, {
+      headers: this.getAuthHeaders(),
+    });
+    const data = await this.handleResponse(response);
+    // Map job_title to title for consistency
+    return data.map((job: any) => ({
+      ...job,
+      title: job.title || job.job_title,
+    }));
+  }
+
+  async applyToJob(jobId: string, coverLetter?: string): Promise<Application> {
+    const response = await fetch(`${this.baseUrl}/applications/`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify({
+        job_posting_id: jobId,
+        cover_letter: coverLetter,
+      }),
+    });
+    return this.handleResponse(response);
+  }
+
+  async getMyApplications(): Promise<any[]> {
+    // Get applications for current user only
+    const response = await fetch(`${this.baseUrl}/applications/my`, {
+      headers: this.getAuthHeaders(),
+    });
+    return this.handleResponse(response);
+  }
+
+  async getMyInterviews(): Promise<any[]> {
+    // Get interviews for current user only
+    const response = await fetch(`${this.baseUrl}/interviews/my`, {
+      headers: this.getAuthHeaders(),
+    });
+    return this.handleResponse(response);
+  }
+
+  // Resume methods
+  async getResume(): Promise<any> {
+    const response = await fetch(`${this.baseUrl}/profile/resume`, {
+      headers: this.getAuthHeaders(),
+    });
+    return this.handleResponse(response);
+  }
+
+  async uploadResume(file: File): Promise<any> {
+    const token = localStorage.getItem('token');
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch(`${this.baseUrl}/profile/resume`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+      body: formData,
+    });
+    return this.handleResponse(response);
+  }
+
+  async downloadResume(): Promise<void> {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${this.baseUrl}/profile/resume/download`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to download resume');
+    }
+
+    // Get filename from Content-Disposition header or use default
+    const contentDisposition = response.headers.get('Content-Disposition');
+    let filename = 'resume.pdf';
+    if (contentDisposition) {
+      const match = contentDisposition.match(/filename="(.+)"/);
+      if (match) {
+        filename = match[1];
+      }
+    }
+
+    // Create blob and download
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  }
+
+  async deleteResume(): Promise<any> {
+    const response = await fetch(`${this.baseUrl}/profile/resume`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders(),
+    });
+    return this.handleResponse(response);
+  }
+
+  // Candidate matching methods
+  async getMatchingCandidates(jobId: string, minScore = 0): Promise<JobMatchingResponse> {
+    const response = await fetch(
+      `${this.baseUrl}/matching/candidates/${jobId}?min_score=${minScore}`,
+      { headers: this.getAuthHeaders() }
+    );
+    return this.handleResponse(response);
+  }
+
+  async precomputeEmbeddings(jobId: string): Promise<PrecomputeResponse> {
+    const response = await fetch(`${this.baseUrl}/matching/precompute/${jobId}`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+    });
+    return this.handleResponse(response);
+  }
+
+  async clearEmbeddingCache(jobId: string): Promise<CacheDeleteResponse> {
+    const response = await fetch(`${this.baseUrl}/matching/cache/${jobId}`, {
       method: 'DELETE',
       headers: this.getAuthHeaders(),
     });

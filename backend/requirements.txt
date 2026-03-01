@@ -11,3 +11,11 @@ python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 email-validator==2.1.0
 bcrypt==4.0.1
+
+# Resume parsing
+google-genai==1.0.0
+pypdf==4.0.1
+
+# Candidate matching
+numpy>=1.24.0
+scikit-learn>=1.3.0

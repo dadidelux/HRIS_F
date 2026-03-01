@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -12,6 +12,10 @@ import {
   HelpCircle,
   LogOut,
   ChevronDown,
+  Search,
+  ClipboardList,
+  Target,
+  LucideIcon,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -19,18 +23,39 @@ interface SidebarProps {
   onLogout: () => void;
 }
 
+type UserRole = 'candidate' | 'hr' | 'admin';
+
+interface MenuItem {
+  id: string;
+  label: string;
+  icon: LucideIcon;
+  path: string;
+  roles: UserRole[];
+}
+
 const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const { user } = useAuth();
 
-  const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
-    { id: 'job-postings', label: 'Job Postings', icon: Briefcase, path: '/job-postings' },
-    { id: 'applications', label: 'Applications', icon: Users, path: '/applications' },
-    { id: 'interviews', label: 'Interviews', icon: Calendar, path: '/interviews' },
-    { id: 'analytics', label: 'Analytics', icon: BarChart3, path: '/analytics' },
-    { id: 'reports', label: 'Reports', icon: FileText, path: '/reports' },
+  // Define all menu items with role access
+  const allMenuItems: MenuItem[] = [
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard', roles: ['candidate', 'hr', 'admin'] },
+    { id: 'jobs', label: 'Browse Jobs', icon: Search, path: '/jobs', roles: ['candidate'] },
+    { id: 'job-postings', label: 'Job Postings', icon: Briefcase, path: '/job-postings', roles: ['hr', 'admin'] },
+    { id: 'my-applications', label: 'My Applications', icon: ClipboardList, path: '/my-applications', roles: ['candidate'] },
+    { id: 'applications', label: 'Applications', icon: Users, path: '/applications', roles: ['hr', 'admin'] },
+    { id: 'my-interviews', label: 'My Interviews', icon: Calendar, path: '/my-interviews', roles: ['candidate'] },
+    { id: 'interviews', label: 'Interviews', icon: Calendar, path: '/interviews', roles: ['hr', 'admin'] },
+    { id: 'matching', label: 'Candidate Matching', icon: Target, path: '/matching', roles: ['hr', 'admin'] },
+    { id: 'analytics', label: 'Analytics', icon: BarChart3, path: '/analytics', roles: ['hr', 'admin'] },
+    { id: 'reports', label: 'Reports', icon: FileText, path: '/reports', roles: ['hr', 'admin'] },
   ];
+
+  // Filter menu items based on user role
+  const menuItems = useMemo(() => {
+    const userRole = (user?.role || 'candidate') as UserRole;
+    return allMenuItems.filter(item => item.roles.includes(userRole));
+  }, [user?.role]);
 
   return (
     <div className="w-64 bg-[#0a2647] min-h-screen text-white flex flex-col">

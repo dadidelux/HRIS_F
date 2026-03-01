@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, DateTime, Enum
+from sqlalchemy import Column, String, DateTime, Enum, LargeBinary
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -23,11 +23,14 @@ class User(Base):
     full_name = Column(String(255), nullable=False)
     role = Column(Enum(UserRole), default=UserRole.CANDIDATE, nullable=False)
     profile_picture = Column(String(500), nullable=True)
+    avatar_data = Column(LargeBinary, nullable=True)
+    avatar_content_type = Column(String(50), nullable=True)
     is_active = Column(String(10), default="true", nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
     # Relationships
     profile = relationship("Profile", back_populates="user", uselist=False)
+    resume = relationship("Resume", back_populates="user", uselist=False)
     applications = relationship("Application", back_populates="user")
     job_postings_created = relationship("JobPosting", foreign_keys="[JobPosting.created_by]", overlaps="creator")

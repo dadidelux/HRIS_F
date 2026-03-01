@@ -2,7 +2,7 @@
 Interview management endpoints
 """
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from typing import List, Optional
 from datetime import date
 
@@ -10,6 +10,7 @@ from app.db.database import get_db
 from app.models.user import User
 from app.models.interview import Interview, InterviewStatus, InterviewType
 from app.models.application import Application
+from app.models.job_posting import JobPosting
 from app.schemas.interview import (
     InterviewResponse,
     InterviewCreate,
@@ -27,13 +28,15 @@ def list_interviews(
     db: Session = Depends(get_db)
 ):
     """
-    List user's interviews
-    Filter by upcoming or completed
+    List interviews
+    - HR/Admin: See all interviews
+    - Candidates: See only their own interviews
     """
-    # Get all interviews for user's applications
-    query = db.query(Interview).join(Application).filter(
-        Application.user_id == current_user.id
-    )
+    query = db.query(Interview).join(Application)
+
+    # Role-based filtering
+    if current_user.role.value == "candidate":
+        query = query.filter(Application.user_id == current_user.id)
 
     # Apply filter
     if filter_type == "upcoming":
@@ -49,6 +52,45 @@ def list_interviews(
 
     interviews = query.order_by(Interview.interview_date.desc(), Interview.interview_time.desc()).all()
     return interviews
+
+
+@router.get("/my")
+def get_my_interviews(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get current user's interviews with job details
+    For candidate dashboard
+    """
+    interviews = db.query(Interview).join(
+        Application, Interview.application_id == Application.id
+    ).join(
+        JobPosting, Application.job_posting_id == JobPosting.id
+    ).filter(
+        Application.user_id == current_user.id
+    ).order_by(Interview.interview_date.desc()).all()
+
+    # Format for frontend
+    result = []
+    for interview in interviews:
+        app = interview.application
+        job = app.job_posting if app else None
+
+        result.append({
+            "id": str(interview.id),
+            "job_title": job.job_title if job else "Unknown",
+            "department": job.department if job else "Unknown",
+            "interview_date": interview.interview_date.isoformat(),
+            "interview_time": interview.interview_time.strftime("%H:%M") if interview.interview_time else "",
+            "interview_type": interview.interview_type.value,
+            "location": interview.location or "",
+            "interviewer_name": interview.interviewer_name or "TBD",
+            "status": interview.status.value,
+            "notes": interview.notes,
+        })
+
+    return result
 
 
 @router.get("/{interview_id}", response_model=InterviewResponse)

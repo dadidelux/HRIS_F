@@ -284,6 +284,16 @@ docker-compose up -d --build
 | API Docs (ReDoc) | http://localhost:8000/redoc | Alternative API documentation |
 | PostgreSQL | localhost:5432 | Database (use client like pgAdmin) |
 
+## 🔑 Default Login Credentials
+
+Run `docker-compose exec backend python seed_users.py` to create these accounts:
+
+| Role | Email | Password |
+|------|-------|----------|
+| **Admin** | admin@hris.com | admin123 |
+| **HR** | hr@hris.com | hr123 |
+| **Candidate** | candidate@hris.com | candidate123 |
+
 ## 📝 Environment Variables
 
 ### Backend (.env)

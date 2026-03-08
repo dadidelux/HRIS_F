@@ -176,6 +176,61 @@ const CreateJobModal: React.FC<CreateJobModalProps> = ({
             {/* Step 1: Basic Information */}
             {currentStep === 1 && (
               <div className="space-y-4">
+                {/* Datalist options */}
+                <datalist id="jobTitleOptions">
+                  <option value="Software Engineer" />
+                  <option value="Senior Software Engineer" />
+                  <option value="Frontend Developer" />
+                  <option value="Backend Developer" />
+                  <option value="Full Stack Developer" />
+                  <option value="DevOps Engineer" />
+                  <option value="Data Analyst" />
+                  <option value="Data Scientist" />
+                  <option value="Product Manager" />
+                  <option value="Project Manager" />
+                  <option value="UX Designer" />
+                  <option value="UI Designer" />
+                  <option value="Graphic Designer" />
+                  <option value="Marketing Manager" />
+                  <option value="Sales Representative" />
+                  <option value="HR Specialist" />
+                  <option value="Accountant" />
+                  <option value="Financial Analyst" />
+                  <option value="Operations Manager" />
+                  <option value="Administrative Assistant" />
+                  <option value="Customer Support Specialist" />
+                  <option value="Business Analyst" />
+                </datalist>
+                <datalist id="departmentOptions">
+                  <option value="Engineering" />
+                  <option value="Product" />
+                  <option value="Design" />
+                  <option value="Analytics" />
+                  <option value="Marketing" />
+                  <option value="Sales" />
+                  <option value="Human Resources" />
+                  <option value="Finance" />
+                  <option value="Operations" />
+                  <option value="Administration" />
+                  <option value="Customer Success" />
+                  <option value="Legal" />
+                  <option value="IT" />
+                </datalist>
+                <datalist id="locationOptions">
+                  <option value="Remote" />
+                  <option value="Quezon City, Philippines" />
+                  <option value="Manila, Philippines" />
+                  <option value="Makati, Philippines" />
+                  <option value="Cebu City, Philippines" />
+                  <option value="San Francisco, CA" />
+                  <option value="New York, NY" />
+                  <option value="Los Angeles, CA" />
+                  <option value="Chicago, IL" />
+                  <option value="Boston, MA" />
+                  <option value="Seattle, WA" />
+                  <option value="Austin, TX" />
+                </datalist>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Job Title <span className="text-red-500">*</span>
@@ -183,8 +238,10 @@ const CreateJobModal: React.FC<CreateJobModalProps> = ({
                   <input
                     type="text"
                     name="jobTitle"
+                    list="jobTitleOptions"
                     value={formData.jobTitle}
                     onChange={handleChange}
+                    placeholder="Select or type a job title"
                     className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${stepErrors.jobTitle ? 'border-red-500' : 'border-gray-300'}`}
                   />
                   {stepErrors.jobTitle && <p className="text-red-500 text-xs mt-1">{stepErrors.jobTitle}</p>}
@@ -197,8 +254,10 @@ const CreateJobModal: React.FC<CreateJobModalProps> = ({
                   <input
                     type="text"
                     name="department"
+                    list="departmentOptions"
                     value={formData.department}
                     onChange={handleChange}
+                    placeholder="Select or type a department"
                     className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${stepErrors.department ? 'border-red-500' : 'border-gray-300'}`}
                   />
                   {stepErrors.department && <p className="text-red-500 text-xs mt-1">{stepErrors.department}</p>}
@@ -211,8 +270,10 @@ const CreateJobModal: React.FC<CreateJobModalProps> = ({
                   <input
                     type="text"
                     name="location"
+                    list="locationOptions"
                     value={formData.location}
                     onChange={handleChange}
+                    placeholder="Select or type a location"
                     className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${stepErrors.location ? 'border-red-500' : 'border-gray-300'}`}
                   />
                   {stepErrors.location && <p className="text-red-500 text-xs mt-1">{stepErrors.location}</p>}

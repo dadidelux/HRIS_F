@@ -167,6 +167,17 @@ const BrowseJobsPage: React.FC = () => {
                 </div>
               )}
 
+              {selectedJob.responsibilities && selectedJob.responsibilities.length > 0 && (
+                <div className="mt-6">
+                  <h3 className="font-semibold text-gray-900 mb-2">Responsibilities</h3>
+                  <ul className="list-disc list-inside text-gray-600 space-y-1">
+                    {selectedJob.responsibilities.map((resp, index) => (
+                      <li key={index}>{resp}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
               <button
                 onClick={() => handleApply(selectedJob.id)}
                 className="mt-6 w-full btn-primary py-3"

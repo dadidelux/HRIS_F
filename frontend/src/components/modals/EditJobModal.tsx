@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, Minus, Plus } from 'lucide-react';
 import { JobPosting } from '../../types';
 
 interface EditJobModalProps {
@@ -19,7 +19,11 @@ const EditJobModal: React.FC<EditJobModalProps> = ({
 
   useEffect(() => {
     if (job) {
-      setFormData({ ...job });
+      setFormData({
+        ...job,
+        requirements: job.requirements?.length ? job.requirements : [''],
+        responsibilities: job.responsibilities?.length ? job.responsibilities : [''],
+      });
     }
   }, [job]);
 
@@ -27,7 +31,12 @@ const EditJobModal: React.FC<EditJobModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+    const cleaned = {
+      ...formData,
+      requirements: formData.requirements.filter((r) => r.trim() !== ''),
+      responsibilities: formData.responsibilities.filter((r) => r.trim() !== ''),
+    };
+    onSave(cleaned);
   };
 
   const handleChange = (
@@ -37,14 +46,41 @@ const EditJobModal: React.FC<EditJobModalProps> = ({
     setFormData((prev) => (prev ? { ...prev, [name]: value } : null));
   };
 
+  const handleArrayChange = (
+    field: 'requirements' | 'responsibilities',
+    index: number,
+    value: string
+  ) => {
+    setFormData((prev) => {
+      if (!prev) return null;
+      const updated = [...prev[field]];
+      updated[index] = value;
+      return { ...prev, [field]: updated };
+    });
+  };
+
+  const addArrayItem = (field: 'requirements' | 'responsibilities') => {
+    setFormData((prev) =>
+      prev ? { ...prev, [field]: [...prev[field], ''] } : null
+    );
+  };
+
+  const removeArrayItem = (
+    field: 'requirements' | 'responsibilities',
+    index: number
+  ) => {
+    setFormData((prev) => {
+      if (!prev) return null;
+      return { ...prev, [field]: prev[field].filter((_, i) => i !== index) };
+    });
+  };
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="flex justify-between items-center p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">
-            Edit Job Posting
-          </h2>
+          <h2 className="text-xl font-semibold text-gray-900">Edit Job Posting</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -55,11 +91,11 @@ const EditJobModal: React.FC<EditJobModalProps> = ({
 
         {/* Form */}
         <form onSubmit={handleSubmit}>
-          <div className="p-6 space-y-4">
+          <div className="p-6 space-y-4 max-h-[65vh] overflow-y-auto">
             {/* Job Title */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Job Title
+                Job Title *
               </label>
               <input
                 type="text"
@@ -74,7 +110,7 @@ const EditJobModal: React.FC<EditJobModalProps> = ({
             {/* Department */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Department
+                Department *
               </label>
               <input
                 type="text"
@@ -89,7 +125,7 @@ const EditJobModal: React.FC<EditJobModalProps> = ({
             {/* Location */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Location
+                Location *
               </label>
               <input
                 type="text"
@@ -104,7 +140,7 @@ const EditJobModal: React.FC<EditJobModalProps> = ({
             {/* Description */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Description
+                Description *
               </label>
               <textarea
                 name="description"
@@ -113,6 +149,92 @@ const EditJobModal: React.FC<EditJobModalProps> = ({
                 rows={4}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
+              />
+            </div>
+
+            {/* Requirements */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Requirements & Qualifications
+              </label>
+              {formData.requirements.map((req, index) => (
+                <div key={index} className="flex gap-2 mb-2">
+                  <input
+                    type="text"
+                    value={req}
+                    onChange={(e) =>
+                      handleArrayChange('requirements', index, e.target.value)
+                    }
+                    placeholder={`Requirement ${index + 1}`}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  {formData.requirements.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeArrayItem('requirements', index)}
+                      className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg"
+                    >
+                      <Minus size={16} />
+                    </button>
+                  )}
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => addArrayItem('requirements')}
+                className="flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm font-medium"
+              >
+                <Plus size={14} /> Add Requirement
+              </button>
+            </div>
+
+            {/* Responsibilities */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Responsibilities
+              </label>
+              {formData.responsibilities.map((resp, index) => (
+                <div key={index} className="flex gap-2 mb-2">
+                  <input
+                    type="text"
+                    value={resp}
+                    onChange={(e) =>
+                      handleArrayChange('responsibilities', index, e.target.value)
+                    }
+                    placeholder={`Responsibility ${index + 1}`}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  {formData.responsibilities.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeArrayItem('responsibilities', index)}
+                      className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg"
+                    >
+                      <Minus size={16} />
+                    </button>
+                  )}
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => addArrayItem('responsibilities')}
+                className="flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm font-medium"
+              >
+                <Plus size={14} /> Add Responsibility
+              </button>
+            </div>
+
+            {/* Application Deadline */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Application Deadline
+              </label>
+              <input
+                type="date"
+                name="applicationDeadline"
+                value={formData.applicationDeadline || ''}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
           </div>

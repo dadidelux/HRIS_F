@@ -31,6 +31,7 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
       year: 'numeric',
       month: 'long',
       day: 'numeric',
+      timeZone: 'Asia/Manila',
     });
   };
 

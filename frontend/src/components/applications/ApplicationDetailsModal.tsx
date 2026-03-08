@@ -1,19 +1,30 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { X, Calendar, MapPin, Building2, FileText } from 'lucide-react';
-import { Application } from '../../services/api';
+import { Application, apiService } from '../../services/api';
 import TimelineView from './TimelineView';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface ApplicationDetailsModalProps {
   application: Application;
   onClose: () => void;
   onWithdraw?: (id: string) => void;
+  onStatusUpdate?: (id: string, newStatus: string) => void;
 }
+
+const HR_ADMIN_STATUSES = ['In-Process', 'Accepted', 'Rejected'] as const;
 
 const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
   application,
   onClose,
   onWithdraw,
+  onStatusUpdate,
 }) => {
+  const { user } = useAuth();
+  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
+  const [statusError, setStatusError] = useState<string | null>(null);
+
+  const isHrOrAdmin = user?.role === 'hr' || user?.role === 'admin';
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
@@ -21,6 +32,26 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
       month: 'long',
       day: 'numeric',
     });
+  };
+
+  const handleStatusChange = async (newStatus: string) => {
+    setUpdatingStatus(newStatus);
+    setStatusError(null);
+    try {
+      await apiService.updateApplication(application.id, { status: newStatus });
+      onStatusUpdate?.(application.id, newStatus);
+    } catch (err) {
+      setStatusError(err instanceof Error ? err.message : 'Failed to update status');
+    } finally {
+      setUpdatingStatus(null);
+    }
+  };
+
+  const statusButtonStyle = (status: string) => {
+    if (status === 'In-Process') return 'bg-blue-600 hover:bg-blue-700 text-white';
+    if (status === 'Accepted') return 'bg-green-600 hover:bg-green-700 text-white';
+    if (status === 'Rejected') return 'bg-red-600 hover:bg-red-700 text-white';
+    return 'bg-gray-600 hover:bg-gray-700 text-white';
   };
 
   const canWithdraw = application.status === 'Pending' || application.status === 'In-Process';
@@ -80,6 +111,28 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
             <h4 className="font-semibold text-gray-900 mb-4">Application Timeline</h4>
             <TimelineView timeline={application.timeline} />
           </div>
+
+          {/* HR/Admin Status Update */}
+          {isHrOrAdmin && (
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Update Status</h4>
+              {statusError && (
+                <p className="text-red-600 text-sm mb-2">{statusError}</p>
+              )}
+              <div className="flex flex-wrap gap-2">
+                {HR_ADMIN_STATUSES.map((status) => (
+                  <button
+                    key={status}
+                    onClick={() => handleStatusChange(status)}
+                    disabled={application.status === status || updatingStatus !== null}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${statusButtonStyle(status)}`}
+                  >
+                    {updatingStatus === status ? 'Updating...' : status}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Footer */}
@@ -90,7 +143,7 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
           >
             Close
           </button>
-          {canWithdraw && onWithdraw && (
+          {canWithdraw && onWithdraw && !isHrOrAdmin && (
             <button
               onClick={() => {
                 if (window.confirm('Are you sure you want to withdraw this application?')) {

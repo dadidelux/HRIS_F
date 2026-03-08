@@ -54,6 +54,13 @@ const ApplicationsPage: React.FC = () => {
     }
   };
 
+  const handleStatusUpdate = async (id: string, newStatus: string) => {
+    await fetchApplications();
+    setSelectedApplication((prev) =>
+      prev && prev.id === id ? { ...prev, status: newStatus as Application['status'] } : prev
+    );
+  };
+
   if (loading) {
     return (
       <div className="flex-1">
@@ -146,6 +153,7 @@ const ApplicationsPage: React.FC = () => {
           application={selectedApplication}
           onClose={() => setSelectedApplication(null)}
           onWithdraw={handleWithdraw}
+          onStatusUpdate={handleStatusUpdate}
         />
       )}
     </div>

@@ -127,6 +127,11 @@ export interface Application {
     location: string;
     status: string;
   };
+  user?: {
+    id: string;
+    full_name: string;
+    email: string;
+  };
 }
 
 export interface TimelineEvent {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, MapPin, Building2, Eye } from 'lucide-react';
+import { Calendar, MapPin, Building2, Eye, User } from 'lucide-react';
 import { Application } from '../../services/api';
 
 interface ApplicationCardProps {
@@ -70,6 +70,15 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ application, onView }
           <p className="text-gray-600 text-sm line-clamp-2">
             {application.cover_letter}
           </p>
+        </div>
+      )}
+
+      {application.user && (
+        <div className="flex items-center gap-1 mb-3 text-sm text-gray-700">
+          <User size={14} className="text-gray-500" />
+          <span className="font-medium">{application.user.full_name}</span>
+          <span className="text-gray-400">·</span>
+          <span className="text-gray-500">{application.user.email}</span>
         </div>
       )}
 

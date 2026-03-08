@@ -89,6 +89,61 @@ const EditJobModal: React.FC<EditJobModalProps> = ({
           </button>
         </div>
 
+        {/* Datalist options (shared with Create modal) */}
+        <datalist id="editJobTitleOptions">
+          <option value="Software Engineer" />
+          <option value="Senior Software Engineer" />
+          <option value="Frontend Developer" />
+          <option value="Backend Developer" />
+          <option value="Full Stack Developer" />
+          <option value="DevOps Engineer" />
+          <option value="Data Analyst" />
+          <option value="Data Scientist" />
+          <option value="Product Manager" />
+          <option value="Project Manager" />
+          <option value="UX Designer" />
+          <option value="UI Designer" />
+          <option value="Graphic Designer" />
+          <option value="Marketing Manager" />
+          <option value="Sales Representative" />
+          <option value="HR Specialist" />
+          <option value="Accountant" />
+          <option value="Financial Analyst" />
+          <option value="Operations Manager" />
+          <option value="Administrative Assistant" />
+          <option value="Customer Support Specialist" />
+          <option value="Business Analyst" />
+        </datalist>
+        <datalist id="editDepartmentOptions">
+          <option value="Engineering" />
+          <option value="Product" />
+          <option value="Design" />
+          <option value="Analytics" />
+          <option value="Marketing" />
+          <option value="Sales" />
+          <option value="Human Resources" />
+          <option value="Finance" />
+          <option value="Operations" />
+          <option value="Administration" />
+          <option value="Customer Success" />
+          <option value="Legal" />
+          <option value="IT" />
+        </datalist>
+        <datalist id="editLocationOptions">
+          <option value="Remote" />
+          <option value="Quezon City, Philippines" />
+          <option value="Manila, Philippines" />
+          <option value="Makati, Philippines" />
+          <option value="Cebu City, Philippines" />
+          <option value="San Francisco, CA" />
+          <option value="New York, NY" />
+          <option value="Los Angeles, CA" />
+          <option value="Chicago, IL" />
+          <option value="Boston, MA" />
+          <option value="Seattle, WA" />
+          <option value="Austin, TX" />
+        </datalist>
+
         {/* Form */}
         <form onSubmit={handleSubmit}>
           <div className="p-6 space-y-4 max-h-[65vh] overflow-y-auto">
@@ -100,8 +155,10 @@ const EditJobModal: React.FC<EditJobModalProps> = ({
               <input
                 type="text"
                 name="jobTitle"
+                list="editJobTitleOptions"
                 value={formData.jobTitle}
                 onChange={handleChange}
+                placeholder="Select or type a job title"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
               />
@@ -115,8 +172,10 @@ const EditJobModal: React.FC<EditJobModalProps> = ({
               <input
                 type="text"
                 name="department"
+                list="editDepartmentOptions"
                 value={formData.department}
                 onChange={handleChange}
+                placeholder="Select or type a department"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
               />
@@ -130,8 +189,10 @@ const EditJobModal: React.FC<EditJobModalProps> = ({
               <input
                 type="text"
                 name="location"
+                list="editLocationOptions"
                 value={formData.location}
                 onChange={handleChange}
+                placeholder="Select or type a location"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
               />

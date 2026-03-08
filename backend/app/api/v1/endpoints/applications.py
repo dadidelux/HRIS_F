@@ -31,7 +31,10 @@ def list_applications(
     - HR/Admin: See all applications
     - Candidates: See only their own applications
     """
-    query = db.query(Application).options(joinedload(Application.job_posting))
+    query = db.query(Application).options(
+        joinedload(Application.job_posting),
+        joinedload(Application.user)
+    )
 
     # Role-based filtering
     if current_user.role.value == "candidate":

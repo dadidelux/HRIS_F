@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Calendar, MapPin, Building2, FileText } from 'lucide-react';
+import { X, Calendar, MapPin, Building2, FileText, User } from 'lucide-react';
 import { Application, apiService } from '../../services/api';
 import TimelineView from './TimelineView';
 import { useAuth } from '../../contexts/AuthContext';
@@ -73,6 +73,18 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
 
         {/* Content */}
         <div className="p-6 space-y-6">
+          {/* Applicant Info (HR/Admin only) */}
+          {isHrOrAdmin && application.applicant && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-1">
+                <User size={18} className="text-blue-600" />
+                <h4 className="font-semibold text-blue-900">Applicant</h4>
+              </div>
+              <p className="text-blue-900 font-medium">{application.applicant.full_name}</p>
+              <p className="text-blue-700 text-sm">{application.applicant.email}</p>
+            </div>
+          )}
+
           {/* Job Information */}
           <div>
             <h3 className="text-xl font-semibold text-gray-900 mb-3">

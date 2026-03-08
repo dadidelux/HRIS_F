@@ -40,6 +40,16 @@ class JobPostingInfo(BaseModel):
         from_attributes = True
 
 
+class ApplicantInfo(BaseModel):
+    """Simplified user info for application response"""
+    id: UUID
+    full_name: str
+    email: str
+
+    class Config:
+        from_attributes = True
+
+
 class ApplicationResponse(BaseModel):
     id: UUID
     user_id: UUID
@@ -54,6 +64,7 @@ class ApplicationResponse(BaseModel):
 
     # Related data
     job_posting: Optional[JobPostingInfo] = None
+    applicant: Optional[ApplicantInfo] = None
 
     class Config:
         from_attributes = True

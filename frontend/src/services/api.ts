@@ -148,6 +148,7 @@ export interface ApplicationCreate {
 export interface ApplicationUpdate {
   status?: string;
   cover_letter?: string;
+  note?: string;
 }
 
 export interface Interview {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Calendar, MapPin, Building2, FileText, User } from 'lucide-react';
 import { Application, apiService } from '../../services/api';
 import TimelineView from './TimelineView';
@@ -20,8 +20,14 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
   onStatusUpdate,
 }) => {
   const { user } = useAuth();
+  const [localApplication, setLocalApplication] = useState<Application>(application);
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
   const [statusError, setStatusError] = useState<string | null>(null);
+  const [statusNote, setStatusNote] = useState<string>('');
+
+  useEffect(() => {
+    setLocalApplication(application);
+  }, [application]);
 
   const isHrOrAdmin = user?.role === 'hr' || user?.role === 'admin';
 
@@ -38,9 +44,27 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
   const handleStatusChange = async (newStatus: string) => {
     setUpdatingStatus(newStatus);
     setStatusError(null);
+    const note = statusNote.trim();
     try {
-      await apiService.updateApplication(application.id, { status: newStatus });
-      onStatusUpdate?.(application.id, newStatus);
+      await apiService.updateApplication(localApplication.id, {
+        status: newStatus,
+        note: note || undefined,
+      });
+      // Optimistically update local state so modal reflects change immediately
+      setLocalApplication((prev) => ({
+        ...prev,
+        status: newStatus as Application['status'],
+        timeline: [
+          ...prev.timeline,
+          {
+            status: newStatus,
+            timestamp: new Date().toISOString(),
+            note: note || `Status changed to ${newStatus}`,
+          },
+        ],
+      }));
+      setStatusNote('');
+      onStatusUpdate?.(localApplication.id, newStatus);
     } catch (err) {
       setStatusError(err instanceof Error ? err.message : 'Failed to update status');
     } finally {
@@ -55,7 +79,7 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
     return 'bg-gray-600 hover:bg-gray-700 text-white';
   };
 
-  const canWithdraw = application.status === 'Pending' || application.status === 'In-Process';
+  const canWithdraw = localApplication.status === 'Pending' || localApplication.status === 'In-Process';
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -74,47 +98,47 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
         {/* Content */}
         <div className="p-6 space-y-6">
           {/* Applicant Info (HR/Admin only) */}
-          {isHrOrAdmin && application.user && (
+          {isHrOrAdmin && localApplication.user && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <div className="flex items-center gap-2 mb-1">
                 <User size={18} className="text-blue-600" />
                 <h4 className="font-semibold text-blue-900">Applicant</h4>
               </div>
-              <p className="text-blue-900 font-medium">{application.user.full_name}</p>
-              <p className="text-blue-700 text-sm">{application.user.email}</p>
+              <p className="text-blue-900 font-medium">{localApplication.user.full_name}</p>
+              <p className="text-blue-700 text-sm">{localApplication.user.email}</p>
             </div>
           )}
 
           {/* Job Information */}
           <div>
             <h3 className="text-xl font-semibold text-gray-900 mb-3">
-              {application.job_posting?.job_title}
+              {localApplication.job_posting?.job_title}
             </h3>
             <div className="flex flex-wrap gap-4 text-gray-600">
               <span className="flex items-center gap-2">
                 <Building2 size={18} />
-                {application.job_posting?.department}
+                {localApplication.job_posting?.department}
               </span>
               <span className="flex items-center gap-2">
                 <MapPin size={18} />
-                {application.job_posting?.location}
+                {localApplication.job_posting?.location}
               </span>
               <span className="flex items-center gap-2">
                 <Calendar size={18} />
-                Applied on {formatDate(application.applied_date)}
+                Applied on {formatDate(localApplication.applied_date)}
               </span>
             </div>
           </div>
 
           {/* Cover Letter */}
-          {application.cover_letter && (
+          {localApplication.cover_letter && (
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <FileText size={18} className="text-gray-600" />
                 <h4 className="font-semibold text-gray-900">Cover Letter</h4>
               </div>
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                <p className="text-gray-700 whitespace-pre-wrap">{application.cover_letter}</p>
+                <p className="text-gray-700 whitespace-pre-wrap">{localApplication.cover_letter}</p>
               </div>
             </div>
           )}
@@ -122,7 +146,7 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
           {/* Timeline */}
           <div>
             <h4 className="font-semibold text-gray-900 mb-4">Application Timeline</h4>
-            <TimelineView timeline={application.timeline} />
+            <TimelineView timeline={localApplication.timeline} />
           </div>
 
           {/* HR/Admin Status Update */}
@@ -132,12 +156,19 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
               {statusError && (
                 <p className="text-red-600 text-sm mb-2">{statusError}</p>
               )}
+              <textarea
+                value={statusNote}
+                onChange={(e) => setStatusNote(e.target.value)}
+                placeholder="Add a note for this status change (optional)..."
+                rows={2}
+                className="w-full mb-3 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              />
               <div className="flex flex-wrap gap-2">
                 {HR_ADMIN_STATUSES.map((status) => (
                   <button
                     key={status}
                     onClick={() => handleStatusChange(status)}
-                    disabled={application.status === status || updatingStatus !== null}
+                    disabled={localApplication.status === status || updatingStatus !== null}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${statusButtonStyle(status)}`}
                   >
                     {updatingStatus === status ? 'Updating...' : status}
@@ -160,7 +191,7 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
             <button
               onClick={() => {
                 if (window.confirm('Are you sure you want to withdraw this application?')) {
-                  onWithdraw(application.id);
+                  onWithdraw(localApplication.id);
                 }
               }}
               className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"

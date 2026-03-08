@@ -60,7 +60,7 @@ const ViewDetailsModal: React.FC<ViewDetailsModalProps> = ({
             <label className="text-sm font-semibold text-gray-700 block mb-2">
               Job Description
             </label>
-            <p className="text-gray-600 leading-relaxed">{job.description}</p>
+            <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">{job.description}</p>
           </div>
 
           {/* Requirements */}

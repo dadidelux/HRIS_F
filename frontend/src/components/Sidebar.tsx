@@ -93,6 +93,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
             <div className="mt-2 bg-[#144272] rounded-lg overflow-hidden">
               <NavLink
                 to="/profile"
+                onClick={() => setIsUserMenuOpen(false)}
                 className="flex items-center gap-3 px-4 py-3 hover:bg-[#1a5490] transition-colors"
               >
                 <UserCircle2 size={18} />
@@ -100,6 +101,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
               </NavLink>
               <NavLink
                 to="/settings"
+                onClick={() => setIsUserMenuOpen(false)}
                 className="flex items-center gap-3 px-4 py-3 hover:bg-[#1a5490] transition-colors"
               >
                 <Settings size={18} />
@@ -107,6 +109,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
               </NavLink>
               <NavLink
                 to="/help"
+                onClick={() => setIsUserMenuOpen(false)}
                 className="flex items-center gap-3 px-4 py-3 hover:bg-[#1a5490] transition-colors"
               >
                 <HelpCircle size={18} />

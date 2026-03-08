@@ -37,9 +37,9 @@ const ApplicationsPage: React.FC = () => {
     filterApplications();
   }, [applications, statusFilter]);
 
-  const fetchApplications = async (): Promise<Application[]> => {
+  const fetchApplications = async (showLoading = true): Promise<Application[]> => {
     try {
-      setLoading(true);
+      if (showLoading) setLoading(true);
       const data = await apiService.getAllApplications();
       setApplications(data);
       return data;
@@ -47,7 +47,7 @@ const ApplicationsPage: React.FC = () => {
       setError(err instanceof Error ? err.message : 'Failed to load applications');
       return [];
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   };
 
@@ -72,7 +72,7 @@ const ApplicationsPage: React.FC = () => {
   };
 
   const handleStatusUpdate = async (id: string, _newStatus: string) => {
-    const updated = await fetchApplications();
+    const updated = await fetchApplications(false);
     const refreshed = updated.find((app) => app.id === id);
     if (refreshed) setSelectedApplication(refreshed);
   };

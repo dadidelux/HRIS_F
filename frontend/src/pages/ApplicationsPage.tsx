@@ -37,13 +37,15 @@ const ApplicationsPage: React.FC = () => {
     filterApplications();
   }, [applications, statusFilter]);
 
-  const fetchApplications = async () => {
+  const fetchApplications = async (): Promise<Application[]> => {
     try {
       setLoading(true);
       const data = await apiService.getAllApplications();
       setApplications(data);
+      return data;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load applications');
+      return [];
     } finally {
       setLoading(false);
     }
@@ -69,11 +71,10 @@ const ApplicationsPage: React.FC = () => {
     }
   };
 
-  const handleStatusUpdate = async (id: string, newStatus: string) => {
-    await fetchApplications();
-    setSelectedApplication((prev) =>
-      prev && prev.id === id ? { ...prev, status: newStatus as Application['status'] } : prev
-    );
+  const handleStatusUpdate = async (id: string, _newStatus: string) => {
+    const updated = await fetchApplications();
+    const refreshed = updated.find((app) => app.id === id);
+    if (refreshed) setSelectedApplication(refreshed);
   };
 
   const formatDate = (dateString: string) =>

@@ -199,7 +199,7 @@ def update_application(
             timeline.append({
                 "status": new_status.value,
                 "timestamp": datetime.utcnow().isoformat(),
-                "note": f"Status changed from {old_status} to {new_status.value}"
+                "note": application_data.note or f"Status changed from {old_status} to {new_status.value}"
             })
 
             application.status = new_status

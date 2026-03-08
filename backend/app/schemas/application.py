@@ -26,6 +26,7 @@ class ApplicationCreate(ApplicationBase):
 class ApplicationUpdate(BaseModel):
     status: Optional[str] = None
     cover_letter: Optional[str] = None
+    note: Optional[str] = None
 
 
 class JobPostingInfo(BaseModel):

@@ -194,16 +194,14 @@ def update_application(
             new_status = ApplicationStatus(application_data.status)
             old_status = application.status.value
 
-            # Add timeline event
-            timeline = application.timeline or []
-            timeline.append({
+            # Add timeline event — create a new list so SQLAlchemy detects the change
+            new_entry = {
                 "status": new_status.value,
                 "timestamp": datetime.utcnow().isoformat(),
                 "note": application_data.note or f"Status changed from {old_status} to {new_status.value}"
-            })
-
+            }
             application.status = new_status
-            application.timeline = timeline
+            application.timeline = (application.timeline or []) + [new_entry]
         except ValueError:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -240,17 +238,13 @@ def delete_application(
             detail="Application not found"
         )
 
-    # Mark as withdrawn instead of deleting
+    # Mark as withdrawn instead of deleting — create new list so SQLAlchemy detects the change
     application.status = ApplicationStatus.WITHDRAWN
-
-    # Add timeline event
-    timeline = application.timeline or []
-    timeline.append({
+    application.timeline = (application.timeline or []) + [{
         "status": ApplicationStatus.WITHDRAWN.value,
         "timestamp": datetime.utcnow().isoformat(),
         "note": "Application withdrawn by candidate"
-    })
-    application.timeline = timeline
+    }]
 
     db.commit()
 

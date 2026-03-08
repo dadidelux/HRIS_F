@@ -33,7 +33,7 @@ const RescheduleModal: React.FC<RescheduleModalProps> = ({
     try {
       await onReschedule(interview.id, {
         ...formData,
-        status: 'Rescheduled',
+        status: 'Scheduled',
       });
       onClose();
     } catch (err) {

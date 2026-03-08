@@ -14,6 +14,7 @@ const CreateJobModal: React.FC<CreateJobModalProps> = ({
   onCreate,
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
+  const [stepErrors, setStepErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState<CreateJobPostingData>({
     jobTitle: '',
     department: '',
@@ -31,6 +32,9 @@ const CreateJobModal: React.FC<CreateJobModalProps> = ({
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    if (stepErrors[name]) {
+      setStepErrors((prev) => { const next = { ...prev }; delete next[name]; return next; });
+    }
   };
 
   const handleArrayChange = (
@@ -62,7 +66,21 @@ const CreateJobModal: React.FC<CreateJobModalProps> = ({
     }));
   };
 
+  const validateCurrentStep = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (currentStep === 1) {
+      if (!formData.jobTitle.trim()) errors.jobTitle = 'Job Title is required.';
+      if (!formData.department.trim()) errors.department = 'Department is required.';
+      if (!formData.location.trim()) errors.location = 'Location is required.';
+    } else if (currentStep === 2) {
+      if (!formData.description.trim()) errors.description = 'Job Description is required.';
+    }
+    setStepErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleNext = () => {
+    if (!validateCurrentStep()) return;
     if (currentStep < 4) setCurrentStep(currentStep + 1);
   };
 
@@ -83,6 +101,7 @@ const CreateJobModal: React.FC<CreateJobModalProps> = ({
 
   const handleClose = () => {
     setCurrentStep(1);
+    setStepErrors({});
     setFormData({
       jobTitle: '',
       department: '',
@@ -166,9 +185,9 @@ const CreateJobModal: React.FC<CreateJobModalProps> = ({
                     name="jobTitle"
                     value={formData.jobTitle}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${stepErrors.jobTitle ? 'border-red-500' : 'border-gray-300'}`}
                   />
+                  {stepErrors.jobTitle && <p className="text-red-500 text-xs mt-1">{stepErrors.jobTitle}</p>}
                 </div>
 
                 <div>
@@ -180,9 +199,9 @@ const CreateJobModal: React.FC<CreateJobModalProps> = ({
                     name="department"
                     value={formData.department}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${stepErrors.department ? 'border-red-500' : 'border-gray-300'}`}
                   />
+                  {stepErrors.department && <p className="text-red-500 text-xs mt-1">{stepErrors.department}</p>}
                 </div>
 
                 <div>
@@ -194,9 +213,9 @@ const CreateJobModal: React.FC<CreateJobModalProps> = ({
                     name="location"
                     value={formData.location}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${stepErrors.location ? 'border-red-500' : 'border-gray-300'}`}
                   />
+                  {stepErrors.location && <p className="text-red-500 text-xs mt-1">{stepErrors.location}</p>}
                 </div>
               </div>
             )}
@@ -214,9 +233,9 @@ const CreateJobModal: React.FC<CreateJobModalProps> = ({
                     onChange={handleChange}
                     rows={8}
                     placeholder="Enter a detailed description of the job position..."
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${stepErrors.description ? 'border-red-500' : 'border-gray-300'}`}
                   />
+                  {stepErrors.description && <p className="text-red-500 text-xs mt-1">{stepErrors.description}</p>}
                 </div>
               </div>
             )}

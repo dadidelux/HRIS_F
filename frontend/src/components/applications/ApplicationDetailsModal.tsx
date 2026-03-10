@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { X, Calendar, MapPin, Building2, FileText, User } from 'lucide-react';
-import { Application, apiService } from '../../services/api';
+import { X, Calendar, MapPin, Building2, FileText, User, ArrowRight } from 'lucide-react';
+import { Application, apiService, RECRUITMENT_STAGES, RecruitmentStage } from '../../services/api';
 import TimelineView from './TimelineView';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -24,6 +24,7 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
   const [statusError, setStatusError] = useState<string | null>(null);
   const [statusNote, setStatusNote] = useState<string>('');
+  const [updatingStage, setUpdatingStage] = useState(false);
 
   useEffect(() => {
     setLocalApplication(application);
@@ -80,6 +81,20 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
   };
 
   const canWithdraw = localApplication.status === 'Pending' || localApplication.status === 'In-Process';
+
+  const handleStageChange = async (stage: RecruitmentStage) => {
+    setUpdatingStage(true);
+    setStatusError(null);
+    try {
+      await apiService.updateApplication(localApplication.id, { recruitment_stage: stage });
+      setLocalApplication(prev => ({ ...prev, recruitment_stage: stage }));
+      onStatusUpdate?.(localApplication.id, localApplication.status);
+    } catch (err) {
+      setStatusError(err instanceof Error ? err.message : 'Failed to update stage');
+    } finally {
+      setUpdatingStage(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -151,29 +166,61 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
 
           {/* HR/Admin Status Update */}
           {isHrOrAdmin && (
-            <div>
-              <h4 className="font-semibold text-gray-900 mb-3">Update Status</h4>
-              {statusError && (
-                <p className="text-red-600 text-sm mb-2">{statusError}</p>
-              )}
-              <textarea
-                value={statusNote}
-                onChange={(e) => setStatusNote(e.target.value)}
-                placeholder="Add a note for this status change (optional)..."
-                rows={2}
-                className="w-full mb-3 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-              />
-              <div className="flex flex-wrap gap-2">
-                {HR_ADMIN_STATUSES.map((status) => (
-                  <button
-                    key={status}
-                    onClick={() => handleStatusChange(status)}
-                    disabled={localApplication.status === status || updatingStatus !== null}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${statusButtonStyle(status)}`}
-                  >
-                    {updatingStatus === status ? 'Updating...' : status}
-                  </button>
-                ))}
+            <div className="space-y-5">
+              {/* Status buttons */}
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-3">Update Status</h4>
+                {statusError && (
+                  <p className="text-red-600 text-sm mb-2">{statusError}</p>
+                )}
+                <textarea
+                  value={statusNote}
+                  onChange={(e) => setStatusNote(e.target.value)}
+                  placeholder="Add a note for this status change (optional)..."
+                  rows={2}
+                  className="w-full mb-3 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                />
+                <div className="flex flex-wrap gap-2">
+                  {HR_ADMIN_STATUSES.map((status) => (
+                    <button
+                      key={status}
+                      onClick={() => handleStatusChange(status)}
+                      disabled={localApplication.status === status || updatingStatus !== null}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${statusButtonStyle(status)}`}
+                    >
+                      {updatingStatus === status ? 'Updating...' : status}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Recruitment Stage */}
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                  <ArrowRight size={16} className="text-blue-600" />
+                  Recruitment Stage
+                  {localApplication.recruitment_stage && (
+                    <span className="text-xs font-normal text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
+                      {localApplication.recruitment_stage}
+                    </span>
+                  )}
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {RECRUITMENT_STAGES.map((stage) => (
+                    <button
+                      key={stage}
+                      onClick={() => handleStageChange(stage)}
+                      disabled={localApplication.recruitment_stage === stage || updatingStage}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors disabled:cursor-not-allowed ${
+                        localApplication.recruitment_stage === stage
+                          ? 'bg-blue-600 border-blue-600 text-white opacity-80'
+                          : 'border-gray-300 text-gray-600 hover:border-blue-400 hover:text-blue-600'
+                      }`}
+                    >
+                      {stage}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           )}

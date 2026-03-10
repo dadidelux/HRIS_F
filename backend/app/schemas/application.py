@@ -25,6 +25,7 @@ class ApplicationCreate(ApplicationBase):
 
 class ApplicationUpdate(BaseModel):
     status: Optional[str] = None
+    recruitment_stage: Optional[str] = None
     cover_letter: Optional[str] = None
     note: Optional[str] = None
 
@@ -56,6 +57,7 @@ class ApplicationResponse(BaseModel):
     user_id: UUID
     job_posting_id: UUID
     status: str
+    recruitment_stage: Optional[str] = None
     applied_date: date
     cover_letter: Optional[str]
     documents: List[dict] = []

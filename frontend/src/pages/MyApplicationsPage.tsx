@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Building2, MapPin, Calendar, FileText } from 'lucide-react';
+import { Building2, MapPin, Calendar, FileText, ArrowRight } from 'lucide-react';
 import { apiService } from '../services/api';
 
 interface Application {
@@ -9,9 +9,19 @@ interface Application {
   department: string;
   location: string;
   status: string;
+  recruitment_stage?: string | null;
   applied_at: string;
   updated_at: string;
 }
+
+const STAGE_COLORS: Record<string, string> = {
+  'Initial Screening': 'bg-blue-100 text-blue-800 border-blue-200',
+  'Teaching Demo':     'bg-purple-100 text-purple-800 border-purple-200',
+  'Interview':         'bg-amber-100 text-amber-800 border-amber-200',
+  'Final Selection':   'bg-orange-100 text-orange-800 border-orange-200',
+  'Job Offer':         'bg-green-100 text-green-800 border-green-200',
+  'Onboarding':        'bg-teal-100 text-teal-800 border-teal-200',
+};
 
 const statusColors: Record<string, string> = {
   pending: 'bg-yellow-100 text-yellow-800',
@@ -105,13 +115,25 @@ const MyApplicationsPage: React.FC = () => {
                     </span>
                   </div>
                 </div>
-                <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium capitalize ${
-                    statusColors[app.status] || 'bg-gray-100 text-gray-800'
-                  }`}
-                >
-                  {app.status}
-                </span>
+                <div className="flex flex-col items-end gap-2">
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-medium capitalize ${
+                      statusColors[app.status] || 'bg-gray-100 text-gray-800'
+                    }`}
+                  >
+                    {app.status}
+                  </span>
+                  {app.recruitment_stage && (
+                    <span
+                      className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border ${
+                        STAGE_COLORS[app.recruitment_stage] || 'bg-gray-100 text-gray-700 border-gray-200'
+                      }`}
+                    >
+                      <ArrowRight size={11} />
+                      {app.recruitment_stage}
+                    </span>
+                  )}
+                </div>
               </div>
 
               {/* Status Timeline (simplified) */}

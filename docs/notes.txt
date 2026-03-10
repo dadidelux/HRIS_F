@@ -1,0 +1,76 @@
+Analysis 1
+
+Why scores are stuck at ~46%
+
+The formula is (0.7 × semantic + 0.3 × keyword) × 100.
+
+The maximum achievable keyword score is 50% (substring matches only — no skill can exactly equal a full requirement sentence). So the ceiling from keyword alone is 0.3 × 0.5 = 15 points.
+
+To hit 90%, you need: 0.9 = 0.7 × semantic + 0.15 → semantic must be ~107% — impossible.
+
+Realistically, 75–80% is the ceiling for this job posting's requirements unless you game it perfectly.
+
+Why dadidelux is #1 despite 95+ skills
+
+Paradoxically, 95+ skills is hurting the score. Semantic score = average similarity of all your skills to the requirements. Skills like Data Pipelines, Airflow, ETL Processes have near-zero similarity to a software engineering role — they drag the mean down.
+
+Musashi has the right types of skills (JavaScript (ES6+), TypeScript, React) but the (ES6+) suffix breaks the substring match — "javascript (es6+)" is not found inside "strong proficiency in javascript, typescript, and react", so keyword stays at 13%.
+
+What to put in your profile/resume to maximize score
+
+Skills that hit keyword (substring match on all 4 requirements):
+
+Skill	Matches Requirement
+JavaScript	"...proficiency in JavaScript, TypeScript..."
+TypeScript	"...in JavaScript, TypeScript, and React"
+React	"...TypeScript, and React"
+problem-solving	"Excellent problem-solving and communication..."
+communication	"...problem-solving and communication skills"
+software development	"...years of experience in software development"
+web technologies	"...modern web technologies and frameworks"
+frameworks	"...web technologies and frameworks"
+Skills that boost semantic score (keep the list focused, ~15–20 skills max):
+
+
+JavaScript, TypeScript, React, Node.js, full-stack development,
+software development, web development, REST APIs, PostgreSQL,
+problem-solving, communication, agile, software engineering,
+web technologies, frameworks, modern web development
+Expected result with this list: keyword ~50%, semantic ~75–80% → total ~67–71% — well above the current #1 at 46.3%.
+
+
+Analysis 2 
+
+Good progress — Yaiba Kuji hit 57.9% with keyword at 50% (the theoretical max for substring matching). That ceiling can't go higher.
+
+The only lever left is semantic score, currently at 61%. The problem: "+41 more" skills are still dragging the average down.
+
+How to push semantic higher
+
+Trim the skill list to only the ~10–12 most relevant skills. Every off-topic skill (Python, HTML5, CSS3, etc.) that has low similarity to the 4 requirements lowers the mean.
+
+Optimal skill list — replace everything with only this:
+
+
+JavaScript
+TypeScript
+React
+software development
+software engineering
+web development
+web technologies
+web frameworks
+full-stack development
+problem-solving
+communication
+analytical thinking
+That's 12 skills, every single one semantically close to at least one requirement. No dilution.
+
+Expected result:
+
+Keyword: still 50% (unchanged — JavaScript, TypeScript, React, problem-solving, communication all still there)
+Semantic: estimated 75–82% (up from 61%)
+Total: ~(0.7 × 0.78 + 0.3 × 0.5) × 100 ≈ 70%
+The hard ceiling for this job posting is roughly 70–75% because the requirements are written in vague natural language ("5+ years of experience", "modern web technologies") — Gemini embeddings can't perfectly match skills to those phrases no matter what.
+
+To push past 75%, the job posting itself would need more specific, skill-name requirements like "JavaScript", "TypeScript", "React" as standalone items rather than full sentences.

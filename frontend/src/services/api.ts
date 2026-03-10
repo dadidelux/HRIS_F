@@ -73,6 +73,28 @@ export interface JobCategory {
   icon: string;
 }
 
+export interface MonthlyCount {
+  month: string;
+  count: number;
+}
+
+export interface SkillDemand {
+  skill: string;
+  count: number;
+}
+
+export interface AnalyticsData {
+  year: number;
+  applicants_per_month: MonthlyCount[];
+  skills_demand: SkillDemand[];
+  avg_time_to_hire: number;
+  offer_rate: number;
+  total_applicants: number;
+  for_interview: number;
+  positions_filled: number;
+  accepted_applicants: number;
+}
+
 export interface Profile {
   id: string;
   user_id: string;
@@ -109,11 +131,41 @@ export interface UserMeUpdate {
   full_name?: string;
 }
 
+export type RecruitmentStage =
+  | 'Initial Screening'
+  | 'Teaching Demo'
+  | 'Interview'
+  | 'Final Selection'
+  | 'Job Offer'
+  | 'Onboarding';
+
+export const RECRUITMENT_STAGES: RecruitmentStage[] = [
+  'Initial Screening',
+  'Teaching Demo',
+  'Interview',
+  'Final Selection',
+  'Job Offer',
+  'Onboarding',
+];
+
+export interface RecruitmentPhaseCandidate {
+  id: string;
+  name: string;
+  job_title: string;
+}
+
+export interface RecruitmentPhase {
+  phase_name: RecruitmentStage;
+  count: number;
+  candidates: RecruitmentPhaseCandidate[];
+}
+
 export interface Application {
   id: string;
   user_id: string;
   job_posting_id: string;
   status: 'Pending' | 'In-Process' | 'Accepted' | 'Rejected' | 'Withdrawn';
+  recruitment_stage?: RecruitmentStage | null;
   applied_date: string;
   cover_letter?: string;
   documents: any[];
@@ -147,6 +199,7 @@ export interface ApplicationCreate {
 
 export interface ApplicationUpdate {
   status?: string;
+  recruitment_stage?: RecruitmentStage | null;
   cover_letter?: string;
   note?: string;
 }
@@ -620,6 +673,32 @@ class ApiService {
       headers: this.getAuthHeaders(),
     });
     return this.handleResponse(response);
+  }
+
+  async getAnalytics(year?: number): Promise<AnalyticsData> {
+    const url = year
+      ? `${this.baseUrl}/dashboard/analytics?year=${year}`
+      : `${this.baseUrl}/dashboard/analytics`;
+    const response = await fetch(url, { headers: this.getAuthHeaders() });
+    return this.handleResponse(response);
+  }
+
+  async getRecruitmentPhases(): Promise<RecruitmentPhase[]> {
+    const response = await fetch(`${this.baseUrl}/dashboard/recruitment-phases`, {
+      headers: this.getAuthHeaders(),
+    });
+    return this.handleResponse(response);
+  }
+
+  async getApplicationsForScheduling(): Promise<{ id: string; candidate_name: string; job_title: string }[]> {
+    const apps = await this.getAllApplications();
+    return apps
+      .filter(a => a.status !== 'Rejected' && a.status !== 'Withdrawn')
+      .map(a => ({
+        id: a.id,
+        candidate_name: a.user?.full_name || 'Unknown',
+        job_title: a.job_posting?.job_title || 'Unknown',
+      }));
   }
 
   async clearEmbeddingCache(jobId: string): Promise<CacheDeleteResponse> {

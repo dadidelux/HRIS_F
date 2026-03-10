@@ -36,7 +36,7 @@ const CandidateMatchingPage: React.FC = () => {
   const handleExportCsv = () => {
     if (!result) return;
     const rows = [
-      ['Rank', 'Full Name', 'Email', 'Skills', 'Has Resume', 'Total Score (%)', 'Semantic Score', 'Keyword Score'],
+      ['Rank', 'Full Name', 'Email', 'Skills', 'Has Resume', 'Total Score (%)', 'Similarity Score', 'Keyword Match Score'],
       ...result.ranked_candidates.map((c, i) => [
         i + 1,
         c.full_name,
@@ -141,7 +141,7 @@ const CandidateMatchingPage: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-800">Candidate Matching</h1>
         </div>
         <p className="text-gray-500 text-sm">
-          Rank candidates using 70% semantic (Gemini) + 30% keyword matching.
+          Rank candidates using 70% similarity (Gemini) + 30% keyword match.
         </p>
       </div>
 

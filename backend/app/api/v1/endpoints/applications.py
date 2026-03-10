@@ -8,7 +8,7 @@ from datetime import datetime
 
 from app.db.database import get_db
 from app.models.user import User
-from app.models.application import Application, ApplicationStatus
+from app.models.application import Application, ApplicationStatus, RecruitmentStage
 from app.models.job_posting import JobPosting
 from app.schemas.application import (
     ApplicationResponse,
@@ -76,6 +76,7 @@ def get_my_applications(
             "department": app.job_posting.department if app.job_posting else "Unknown",
             "location": app.job_posting.location if app.job_posting else "Unknown",
             "status": app.status.value,
+            "recruitment_stage": app.recruitment_stage,
             "applied_at": app.applied_date.isoformat(),
             "updated_at": app.updated_at.isoformat(),
         })
@@ -207,6 +208,16 @@ def update_application(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Invalid status value"
             )
+
+    # Update recruitment stage if provided
+    if application_data.recruitment_stage is not None:
+        valid_stages = {s.value for s in RecruitmentStage}
+        if application_data.recruitment_stage not in valid_stages:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid recruitment stage. Valid values: {sorted(valid_stages)}"
+            )
+        application.recruitment_stage = application_data.recruitment_stage
 
     # Update cover letter if provided
     if application_data.cover_letter is not None:

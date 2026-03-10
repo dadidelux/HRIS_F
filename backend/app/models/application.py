@@ -19,6 +19,15 @@ class ApplicationStatus(str, enum.Enum):
     WITHDRAWN = "Withdrawn"
 
 
+class RecruitmentStage(str, enum.Enum):
+    INITIAL_SCREENING = "Initial Screening"
+    TEACHING_DEMO = "Teaching Demo"
+    INTERVIEW = "Interview"
+    FINAL_SELECTION = "Final Selection"
+    JOB_OFFER = "Job Offer"
+    ONBOARDING = "Onboarding"
+
+
 class Application(Base):
     __tablename__ = "applications"
 
@@ -28,6 +37,7 @@ class Application(Base):
 
     # Application details
     status = Column(Enum(ApplicationStatus), default=ApplicationStatus.PENDING, nullable=False)
+    recruitment_stage = Column(String(50), nullable=True)  # RecruitmentStage value
     applied_date = Column(Date, default=datetime.utcnow().date, nullable=False)
     cover_letter = Column(String(2000), nullable=True)
 

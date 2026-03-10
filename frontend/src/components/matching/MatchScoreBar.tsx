@@ -94,7 +94,7 @@ const MatchScoreBar: React.FC<MatchScoreBarProps> = ({
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           {/* Semantic */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ fontSize: 11, color: '#6b7280', width: 68 }}>Semantic</span>
+            <span style={{ fontSize: 11, color: '#6b7280', width: 68 }}>Similarity</span>
             <div
               style={{
                 flex: 1,
@@ -120,7 +120,7 @@ const MatchScoreBar: React.FC<MatchScoreBarProps> = ({
 
           {/* Keyword */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ fontSize: 11, color: '#6b7280', width: 68 }}>Keyword</span>
+            <span style={{ fontSize: 11, color: '#6b7280', width: 80 }}>Keyword Match</span>
             <div
               style={{
                 flex: 1,

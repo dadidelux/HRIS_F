@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import LoginPage from './pages/LoginPage';
@@ -13,9 +14,12 @@ import BrowseJobsPage from './pages/BrowseJobsPage';
 import MyApplicationsPage from './pages/MyApplicationsPage';
 import MyInterviewsPage from './pages/MyInterviewsPage';
 import CandidateMatchingPage from './pages/CandidateMatchingPage';
+import AnalyticsPage from './pages/AnalyticsPage';
+import ReportsPage from './pages/ReportsPage';
 
 function App() {
   return (
+    <ThemeProvider>
     <AuthProvider>
       <Router>
         <Routes>
@@ -43,22 +47,8 @@ function App() {
             <Route path="jobs" element={<BrowseJobsPage />} />
             <Route path="my-applications" element={<MyApplicationsPage />} />
             <Route path="my-interviews" element={<MyInterviewsPage />} />
-            <Route
-              path="analytics"
-              element={
-                <div className="p-8 text-center">
-                  <p className="text-gray-500">Analytics - Coming soon!</p>
-                </div>
-              }
-            />
-            <Route
-              path="reports"
-              element={
-                <div className="p-8 text-center">
-                  <p className="text-gray-500">Reports - Coming soon!</p>
-                </div>
-              }
-            />
+            <Route path="analytics" element={<AnalyticsPage />} />
+            <Route path="reports" element={<ReportsPage />} />
             <Route path="profile" element={<ProfilePage />} />
             <Route path="settings" element={<ProfilePage />} />
             <Route path="help" element={<ProfilePage />} />
@@ -69,6 +59,7 @@ function App() {
         </Routes>
       </Router>
     </AuthProvider>
+    </ThemeProvider>
   );
 }
 

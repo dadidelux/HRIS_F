@@ -117,11 +117,11 @@ function JobPostingsPage() {
   return (
     <div className="flex-1">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-8 py-6">
+      <div className="border-b px-8 py-6" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border)' }}>
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Job Postings</h1>
-            <p className="text-gray-600 mt-1">
+            <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Job Postings</h1>
+            <p className="mt-1" style={{ color: 'var(--text-muted)' }}>
               Manage and track all job postings
             </p>
           </div>
@@ -136,7 +136,7 @@ function JobPostingsPage() {
       </div>
 
       {/* Content */}
-      <div className="p-8">
+      <div className="p-8 min-h-screen" style={{ backgroundColor: 'var(--bg-secondary)' }}>
         {isLoading ? (
           <div className="flex justify-center items-center py-12">
             <Loader2 className="animate-spin text-blue-600" size={48} />
@@ -150,7 +150,7 @@ function JobPostingsPage() {
           </div>
         ) : jobPostings.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">
+            <p className="text-lg" style={{ color: 'var(--text-muted)' }}>
               No job postings yet. Create your first posting!
             </p>
           </div>

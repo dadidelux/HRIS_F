@@ -1,66 +1,55 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp, User } from 'lucide-react';
 import { RecruitmentPhase, RecruitmentStage, RECRUITMENT_STAGES } from '../../services/api';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface Props {
   phases: RecruitmentPhase[];
 }
 
 interface PhaseConfig {
-  bg: string;
-  border: string;
-  text: string;
+  light: { bg: string; border: string; text: string };
+  dark: { bg: string; border: string; text: string };
   badgeBg: string;
   dot: string;
 }
 
 const PHASE_COLORS: Record<string, PhaseConfig> = {
   'Initial Screening': {
-    bg: '#eff6ff',
-    border: '#bfdbfe',
-    text: '#1d4ed8',
-    badgeBg: '#3b82f6',
-    dot: '#3b82f6',
+    light: { bg: '#eff6ff', border: '#bfdbfe', text: '#1d4ed8' },
+    dark:  { bg: '#1e3a5f', border: '#3b82f6', text: '#93c5fd' },
+    badgeBg: '#3b82f6', dot: '#3b82f6',
   },
   'Teaching Demo': {
-    bg: '#faf5ff',
-    border: '#e9d5ff',
-    text: '#7c3aed',
-    badgeBg: '#8b5cf6',
-    dot: '#8b5cf6',
+    light: { bg: '#faf5ff', border: '#e9d5ff', text: '#7c3aed' },
+    dark:  { bg: '#2e1a47', border: '#8b5cf6', text: '#c4b5fd' },
+    badgeBg: '#8b5cf6', dot: '#8b5cf6',
   },
   'Interview': {
-    bg: '#fffbeb',
-    border: '#fcd34d',
-    text: '#92400e',
-    badgeBg: '#f59e0b',
-    dot: '#f59e0b',
+    light: { bg: '#fffbeb', border: '#fcd34d', text: '#92400e' },
+    dark:  { bg: '#3d2a00', border: '#f59e0b', text: '#fcd34d' },
+    badgeBg: '#f59e0b', dot: '#f59e0b',
   },
   'Final Selection': {
-    bg: '#fff7ed',
-    border: '#fdba74',
-    text: '#c2410c',
-    badgeBg: '#f97316',
-    dot: '#f97316',
+    light: { bg: '#fff7ed', border: '#fdba74', text: '#c2410c' },
+    dark:  { bg: '#3d1a00', border: '#f97316', text: '#fdba74' },
+    badgeBg: '#f97316', dot: '#f97316',
   },
   'Job Offer': {
-    bg: '#f0fdf4',
-    border: '#86efac',
-    text: '#15803d',
-    badgeBg: '#22c55e',
-    dot: '#22c55e',
+    light: { bg: '#f0fdf4', border: '#86efac', text: '#15803d' },
+    dark:  { bg: '#14532d', border: '#22c55e', text: '#86efac' },
+    badgeBg: '#22c55e', dot: '#22c55e',
   },
   'Onboarding': {
-    bg: '#f0fdfa',
-    border: '#5eead4',
-    text: '#0f766e',
-    badgeBg: '#14b8a6',
-    dot: '#14b8a6',
+    light: { bg: '#f0fdfa', border: '#5eead4', text: '#0f766e' },
+    dark:  { bg: '#134e4a', border: '#14b8a6', text: '#5eead4' },
+    badgeBg: '#14b8a6', dot: '#14b8a6',
   },
 };
 
 const RecruitmentPhasesSection: React.FC<Props> = ({ phases }) => {
   const [expandedPhase, setExpandedPhase] = useState<string | null>(null);
+  const { darkMode } = useTheme();
 
   const phaseMap = new Map(phases.map(p => [p.phase_name, p]));
 
@@ -79,7 +68,8 @@ const RecruitmentPhasesSection: React.FC<Props> = ({ phases }) => {
         {RECRUITMENT_STAGES.map(stageName => {
           const phase = phaseMap.get(stageName);
           const count = phase?.count ?? 0;
-          const colors = PHASE_COLORS[stageName];
+          const cfg = PHASE_COLORS[stageName];
+          const palette = darkMode ? cfg.dark : cfg.light;
           const isExpanded = expandedPhase === stageName;
 
           return (
@@ -88,13 +78,13 @@ const RecruitmentPhasesSection: React.FC<Props> = ({ phases }) => {
               onClick={() => togglePhase(stageName)}
               className="flex flex-col items-center p-4 rounded-xl text-center transition-all duration-200 cursor-pointer"
               style={{
-                backgroundColor: colors.bg,
-                border: isExpanded ? `2px solid ${colors.dot}` : `1px solid ${colors.border}`,
-                boxShadow: isExpanded ? `0 0 0 2px ${colors.dot}30` : 'none',
-                color: colors.text,
+                backgroundColor: palette.bg,
+                border: isExpanded ? `2px solid ${cfg.dot}` : `1px solid ${palette.border}`,
+                boxShadow: isExpanded ? `0 0 0 2px ${cfg.dot}30` : 'none',
+                color: palette.text,
               }}
             >
-              <span className="text-3xl font-bold" style={{ color: colors.text }}>{count}</span>
+              <span className="text-3xl font-bold" style={{ color: palette.text }}>{count}</span>
               <span className="text-xs font-medium mt-1 leading-tight">{stageName}</span>
               {isExpanded ? (
                 <ChevronUp size={14} className="mt-2 opacity-60" />
@@ -109,14 +99,15 @@ const RecruitmentPhasesSection: React.FC<Props> = ({ phases }) => {
       {/* Expanded candidate list */}
       {expandedPhase && (() => {
         const phase = phaseMap.get(expandedPhase as RecruitmentStage);
-        const colors = PHASE_COLORS[expandedPhase];
+        const cfg = PHASE_COLORS[expandedPhase];
+        const palette = darkMode ? cfg.dark : cfg.light;
         if (!phase) return null;
         return (
           <div
             className="rounded-xl p-4"
-            style={{ backgroundColor: colors.bg, border: `1px solid ${colors.border}` }}
+            style={{ backgroundColor: palette.bg, border: `1px solid ${palette.border}` }}
           >
-            <h3 className="font-semibold text-sm mb-3" style={{ color: colors.text }}>
+            <h3 className="font-semibold text-sm mb-3" style={{ color: palette.text }}>
               {expandedPhase} — {phase.count} applicant{phase.count !== 1 ? 's' : ''}
             </h3>
             {phase.candidates.length === 0 ? (
@@ -134,7 +125,7 @@ const RecruitmentPhasesSection: React.FC<Props> = ({ phases }) => {
                   >
                     <div
                       className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
-                      style={{ backgroundColor: colors.badgeBg }}
+                      style={{ backgroundColor: cfg.badgeBg }}
                     >
                       <User size={13} className="text-white" />
                     </div>

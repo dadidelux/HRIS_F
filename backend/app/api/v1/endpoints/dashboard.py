@@ -97,23 +97,25 @@ def get_recruitment_phases(
     from sqlalchemy.orm import joinedload
 
     all_stages = [s.value for s in RecruitmentStage]
+    default_stage = RecruitmentStage.INITIAL_SCREENING.value
 
-    # Fetch all applications that have a recruitment_stage set, with user + job data
+    # Fetch all active applications (exclude Rejected and Withdrawn)
     applications = db.query(Application).options(
         joinedload(Application.user),
         joinedload(Application.job_posting)
-    ).filter(Application.recruitment_stage.isnot(None)).all()
+    ).filter(
+        Application.status.notin_([ApplicationStatus.REJECTED, ApplicationStatus.WITHDRAWN])
+    ).all()
 
-    # Group by stage
+    # Group by stage; applications with no stage default to Initial Screening
     stage_map: Dict[str, list] = {s: [] for s in all_stages}
     for app in applications:
-        stage = app.recruitment_stage
-        if stage in stage_map:
-            stage_map[stage].append({
-                "id": str(app.id),
-                "name": app.user.full_name if app.user else "Unknown",
-                "job_title": app.job_posting.job_title if app.job_posting else "Unknown",
-            })
+        stage = app.recruitment_stage if app.recruitment_stage in stage_map else default_stage
+        stage_map[stage].append({
+            "id": str(app.id),
+            "name": app.user.full_name if app.user else "Unknown",
+            "job_title": app.job_posting.job_title if app.job_posting else "Unknown",
+        })
 
     return [
         {

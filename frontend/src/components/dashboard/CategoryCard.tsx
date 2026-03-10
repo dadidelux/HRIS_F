@@ -24,14 +24,14 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ name, count, icon }) => {
   const Icon = getIconComponent(icon);
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer">
+    <div className="rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}>
       <div className="flex items-center gap-4">
         <div className="bg-blue-100 text-blue-600 p-3 rounded-lg">
           <Icon size={24} />
         </div>
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-gray-900">{name}</h3>
-          <p className="text-sm text-gray-600">
+          <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>{name}</h3>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
             {count} {count === 1 ? 'position' : 'positions'}
           </p>
         </div>

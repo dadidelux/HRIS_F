@@ -57,27 +57,27 @@ const BrowseJobsPage: React.FC = () => {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Browse Jobs</h1>
-        <p className="text-gray-600">Find your next opportunity</p>
+        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Browse Jobs</h1>
+        <p style={{ color: 'var(--text-muted)' }}>Find your next opportunity</p>
       </div>
 
       {/* Search */}
       <div className="mb-6">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2" size={20} style={{ color: 'var(--text-muted)' }} />
           <input
             type="text"
             placeholder="Search jobs by title, department, or location..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="themed-input w-full pl-10 pr-4 py-3 rounded-lg"
           />
         </div>
       </div>
 
       {filteredJobs.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-gray-500">No jobs found</p>
+          <p style={{ color: 'var(--text-muted)' }}>No jobs found</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -87,16 +87,19 @@ const BrowseJobsPage: React.FC = () => {
               <div
                 key={job.id}
                 onClick={() => setSelectedJob(job)}
-                className={`bg-white rounded-lg border p-4 cursor-pointer transition-all ${
-                  selectedJob?.id === job.id
-                    ? 'border-blue-500 ring-2 ring-blue-100'
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
+                className="rounded-lg p-4 cursor-pointer transition-all"
+                style={{
+                  backgroundColor: 'var(--bg-card)',
+                  border: selectedJob?.id === job.id
+                    ? '2px solid var(--accent)'
+                    : '1px solid var(--border)',
+                  boxShadow: selectedJob?.id === job.id ? '0 0 0 3px var(--accent-light)' : 'none',
+                }}
               >
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="font-semibold text-gray-900">{job.job_title}</h3>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                    <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>{job.job_title}</h3>
+                    <div className="flex items-center gap-4 mt-2 text-sm" style={{ color: 'var(--text-muted)' }}>
                       <span className="flex items-center gap-1">
                         <Building2 size={14} />
                         {job.department}
@@ -113,11 +116,11 @@ const BrowseJobsPage: React.FC = () => {
                         </span>
                       )}
                       {job.salary_range && (
-                        <span className="text-sm text-gray-500">{job.salary_range}</span>
+                        <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{job.salary_range}</span>
                       )}
                     </div>
                   </div>
-                  <ChevronRight size={20} className="text-gray-400" />
+                  <ChevronRight size={20} style={{ color: 'var(--text-muted)' }} />
                 </div>
               </div>
             ))}
@@ -125,10 +128,13 @@ const BrowseJobsPage: React.FC = () => {
 
           {/* Job Details */}
           {selectedJob && (
-            <div className="bg-white rounded-lg border border-gray-200 p-6 sticky top-6">
-              <h2 className="text-xl font-bold text-gray-900">{selectedJob.job_title}</h2>
+            <div
+              className="rounded-lg p-6 sticky top-6"
+              style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}
+            >
+              <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>{selectedJob.job_title}</h2>
 
-              <div className="flex items-center gap-4 mt-3 text-sm text-gray-500">
+              <div className="flex items-center gap-4 mt-3 text-sm" style={{ color: 'var(--text-muted)' }}>
                 <span className="flex items-center gap-1">
                   <Building2 size={14} />
                   {selectedJob.department}
@@ -137,7 +143,7 @@ const BrowseJobsPage: React.FC = () => {
                   <MapPin size={14} />
                   {selectedJob.location}
                 </span>
-{selectedJob.employment_type && (
+                {selectedJob.employment_type && (
                   <span className="flex items-center gap-1">
                     <Clock size={14} />
                     {selectedJob.employment_type}
@@ -152,14 +158,14 @@ const BrowseJobsPage: React.FC = () => {
               )}
 
               <div className="mt-6">
-                <h3 className="font-semibold text-gray-900 mb-2">Description</h3>
-                <p className="text-gray-600 whitespace-pre-line">{selectedJob.description}</p>
+                <h3 className="font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Description</h3>
+                <p className="whitespace-pre-line" style={{ color: 'var(--text-secondary)' }}>{selectedJob.description}</p>
               </div>
 
               {selectedJob.requirements && selectedJob.requirements.length > 0 && (
                 <div className="mt-6">
-                  <h3 className="font-semibold text-gray-900 mb-2">Requirements</h3>
-                  <ul className="list-disc list-inside text-gray-600 space-y-1">
+                  <h3 className="font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Requirements</h3>
+                  <ul className="list-disc list-inside space-y-1" style={{ color: 'var(--text-secondary)' }}>
                     {selectedJob.requirements.map((req, index) => (
                       <li key={index}>{req}</li>
                     ))}
@@ -169,8 +175,8 @@ const BrowseJobsPage: React.FC = () => {
 
               {selectedJob.responsibilities && selectedJob.responsibilities.length > 0 && (
                 <div className="mt-6">
-                  <h3 className="font-semibold text-gray-900 mb-2">Responsibilities</h3>
-                  <ul className="list-disc list-inside text-gray-600 space-y-1">
+                  <h3 className="font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Responsibilities</h3>
+                  <ul className="list-disc list-inside space-y-1" style={{ color: 'var(--text-secondary)' }}>
                     {selectedJob.responsibilities.map((resp, index) => (
                       <li key={index}>{resp}</li>
                     ))}

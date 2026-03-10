@@ -128,7 +128,7 @@ const CandidateMatchingPage: React.FC = () => {
       );
     }
     return (
-      <span style={{ color: '#9ca3af', fontSize: 13, fontWeight: 600 }}>#{index + 1}</span>
+      <span style={{ color: 'var(--text-muted)', fontSize: 13, fontWeight: 600 }}>#{index + 1}</span>
     );
   };
 
@@ -138,19 +138,22 @@ const CandidateMatchingPage: React.FC = () => {
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-1">
           <Target size={22} className="text-blue-600" />
-          <h1 className="text-2xl font-bold text-gray-800">Candidate Matching</h1>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Candidate Matching</h1>
         </div>
-        <p className="text-gray-500 text-sm">
+        <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
           Rank candidates using 70% similarity (Gemini) + 30% keyword match.
         </p>
       </div>
 
       {/* Controls */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-6">
+      <div
+        className="rounded-xl shadow-sm p-5 mb-6"
+        style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}
+      >
         <div className="flex flex-wrap gap-4 items-end">
           {/* Job selector */}
           <div className="flex-1 min-w-48">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Job Posting</label>
+            <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Job Posting</label>
             <select
               value={selectedJobId}
               onChange={(e) => {
@@ -159,7 +162,7 @@ const CandidateMatchingPage: React.FC = () => {
                 setStatusMsg('');
                 setError('');
               }}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="themed-select w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">— Select a job —</option>
               {activeJobs.map((j) => (
@@ -172,7 +175,7 @@ const CandidateMatchingPage: React.FC = () => {
 
           {/* Min score */}
           <div style={{ width: 130 }}>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
               Min Score (0–100)
             </label>
             <input
@@ -181,7 +184,7 @@ const CandidateMatchingPage: React.FC = () => {
               max={100}
               value={minScore}
               onChange={(e) => setMinScore(Math.max(0, Math.min(100, Number(e.target.value))))}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="themed-input w-full rounded-lg px-3 py-2 text-sm"
             />
           </div>
 
@@ -241,14 +244,18 @@ const CandidateMatchingPage: React.FC = () => {
       {result && (
         <div>
           {/* Job requirements */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-4">
+          <div
+            className="rounded-xl shadow-sm p-5 mb-4"
+            style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}
+          >
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-base font-semibold text-gray-700">
+              <h2 className="text-base font-semibold" style={{ color: 'var(--text-secondary)' }}>
                 {result.job_title} — Requirements
               </h2>
               <button
                 onClick={handleExportCsv}
-                className="inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors"
+                className="inline-flex items-center gap-2 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors"
+                style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-secondary)' }}
               >
                 <Download size={14} />
                 Export CSV
@@ -258,13 +265,14 @@ const CandidateMatchingPage: React.FC = () => {
               {result.requirements.map((r) => (
                 <span
                   key={r}
-                  className="bg-blue-50 text-blue-700 text-xs font-medium px-3 py-1 rounded-full border border-blue-200"
+                  className="text-xs font-medium px-3 py-1 rounded-full"
+                  style={{ backgroundColor: 'var(--accent-light)', color: 'var(--accent)', border: '1px solid var(--accent)' }}
                 >
                   {r}
                 </span>
               ))}
             </div>
-            <p className="text-xs text-gray-400 mt-3">
+            <p className="text-xs mt-3" style={{ color: 'var(--text-muted)' }}>
               {result.total_candidates} candidate(s) matched &bull; computed{' '}
               {new Date(result.computed_at).toLocaleTimeString()}
             </p>
@@ -272,7 +280,7 @@ const CandidateMatchingPage: React.FC = () => {
 
           {/* Candidate cards */}
           {result.ranked_candidates.length === 0 ? (
-            <div className="text-center py-12 text-gray-400">
+            <div className="text-center py-12" style={{ color: 'var(--text-muted)' }}>
               No candidates meet the minimum score threshold.
             </div>
           ) : (
@@ -282,7 +290,8 @@ const CandidateMatchingPage: React.FC = () => {
                 return (
                   <div
                     key={c.user_id}
-                    className="bg-white rounded-xl shadow-sm border border-gray-200 p-4"
+                    className="rounded-xl shadow-sm p-4"
+                    style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}
                   >
                     <div className="flex items-start gap-4">
                       {/* Rank badge */}
@@ -291,7 +300,7 @@ const CandidateMatchingPage: React.FC = () => {
                       {/* Candidate info */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-semibold text-gray-800">{c.full_name}</span>
+                          <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{c.full_name}</span>
                           {c.has_resume && (
                             <span className="inline-flex items-center gap-1 text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
                               <FileText size={11} />
@@ -299,14 +308,15 @@ const CandidateMatchingPage: React.FC = () => {
                             </span>
                           )}
                         </div>
-                        <p className="text-xs text-gray-500 mt-0.5">{c.email}</p>
+                        <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{c.email}</p>
 
                         {/* Skills preview */}
                         <div className="flex flex-wrap gap-1 mt-2">
                           {(expanded ? c.skills : c.skills.slice(0, 6)).map((s) => (
                             <span
                               key={s}
-                              className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full"
+                              className="text-xs px-2 py-0.5 rounded-full"
+                              style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-secondary)' }}
                             >
                               {s}
                             </span>
@@ -342,7 +352,8 @@ const CandidateMatchingPage: React.FC = () => {
                       {/* Expand toggle */}
                       <button
                         onClick={() => toggleExpand(c.user_id)}
-                        className="flex-shrink-0 text-gray-400 hover:text-gray-600 mt-1"
+                        className="flex-shrink-0 mt-1"
+                        style={{ color: 'var(--text-muted)' }}
                         aria-label="Toggle details"
                       >
                         {expanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}

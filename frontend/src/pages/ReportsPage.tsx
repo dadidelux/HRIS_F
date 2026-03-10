@@ -7,7 +7,7 @@ interface RecentReport {
   type: 'CSV';
   date: string;
   filename: string;
-  blob?: string; // base64 for re-download
+  blob?: string;
 }
 
 const REPORT_TYPES = [
@@ -17,7 +17,7 @@ const REPORT_TYPES = [
     description: 'All applicants with contact info and status',
     icon: ClipboardList,
     color: 'text-blue-600',
-    bg: 'bg-blue-50 dark:bg-blue-900/20',
+    bg: 'bg-blue-50',
   },
   {
     id: 'shortlisted',
@@ -25,7 +25,7 @@ const REPORT_TYPES = [
     description: 'Candidates currently In-Process or Accepted',
     icon: Users,
     color: 'text-green-600',
-    bg: 'bg-green-50 dark:bg-green-900/20',
+    bg: 'bg-green-50',
   },
   {
     id: 'interview-results',
@@ -33,7 +33,7 @@ const REPORT_TYPES = [
     description: 'All scheduled and completed interviews',
     icon: Calendar,
     color: 'text-purple-600',
-    bg: 'bg-purple-50 dark:bg-purple-900/20',
+    bg: 'bg-purple-50',
   },
   {
     id: 'hiring-summary',
@@ -41,7 +41,7 @@ const REPORT_TYPES = [
     description: 'Aggregate hiring statistics',
     icon: BarChart3,
     color: 'text-orange-600',
-    bg: 'bg-orange-50 dark:bg-orange-900/20',
+    bg: 'bg-orange-50',
   },
 ] as const;
 
@@ -59,7 +59,6 @@ const loadRecentReports = (): RecentReport[] => {
 };
 
 const saveRecentReports = (reports: RecentReport[]) => {
-  // Keep last 10, don't persist blob data to avoid quota issues
   const toSave = reports.slice(0, 10).map(({ blob: _b, ...rest }) => rest);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
 };
@@ -199,48 +198,55 @@ const ReportsPage: React.FC = () => {
   };
 
   return (
-    <div className="p-8 bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <div className="p-8 min-h-screen" style={{ backgroundColor: 'var(--bg-secondary)' }}>
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+        <h1 className="text-2xl font-bold flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
           <FileText size={24} className="text-blue-600" />
           Reports
         </h1>
-        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+        <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
           Generate and download recruitment reports
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         {/* Left panel — report type selector */}
-        <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
-          <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-4 uppercase tracking-wide">
+        <div
+          className="lg:col-span-2 rounded-xl shadow-sm p-5"
+          style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}
+        >
+          <h2 className="text-sm font-semibold mb-4 uppercase tracking-wide" style={{ color: 'var(--text-secondary)' }}>
             Generate Report
           </h2>
 
           <div className="space-y-2 mb-6">
             {REPORT_TYPES.map(rt => {
               const Icon = rt.icon;
+              const isSelected = selectedType === rt.id;
               return (
                 <button
                   key={rt.id}
                   onClick={() => setSelectedType(rt.id)}
-                  className={`
-                    w-full flex items-center gap-3 px-4 py-3 rounded-lg border text-left transition-all
-                    ${selectedType === rt.id
-                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-sm'
-                      : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                    }
-                  `}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all ${
+                    isSelected ? 'shadow-sm' : ''
+                  }`}
+                  style={{
+                    border: isSelected ? '1px solid var(--accent)' : '1px solid var(--border)',
+                    backgroundColor: isSelected ? 'var(--accent-light)' : 'transparent',
+                  }}
                 >
                   <div className={`w-9 h-9 rounded-lg ${rt.bg} flex items-center justify-center flex-shrink-0`}>
                     <Icon size={18} className={rt.color} />
                   </div>
                   <div className="min-w-0">
-                    <p className={`text-sm font-medium ${selectedType === rt.id ? 'text-blue-700 dark:text-blue-400' : 'text-gray-800 dark:text-gray-200'}`}>
+                    <p
+                      className="text-sm font-medium"
+                      style={{ color: isSelected ? 'var(--text-active)' : 'var(--text-primary)' }}
+                    >
                       {rt.label}
                     </p>
-                    <p className="text-xs text-gray-400 dark:text-gray-500 truncate">{rt.description}</p>
+                    <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>{rt.description}</p>
                   </div>
                 </button>
               );
@@ -248,7 +254,7 @@ const ReportsPage: React.FC = () => {
           </div>
 
           {error && (
-            <p className="text-red-600 text-xs mb-3 bg-red-50 dark:bg-red-900/20 rounded px-3 py-2 border border-red-200 dark:border-red-800">
+            <p className="text-red-600 text-xs mb-3 bg-red-50 rounded px-3 py-2 border border-red-200">
               {error}
             </p>
           )}
@@ -267,13 +273,16 @@ const ReportsPage: React.FC = () => {
         </div>
 
         {/* Right panel — recent reports */}
-        <div className="lg:col-span-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
-          <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-4 uppercase tracking-wide">
+        <div
+          className="lg:col-span-3 rounded-xl shadow-sm p-5"
+          style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}
+        >
+          <h2 className="text-sm font-semibold mb-4 uppercase tracking-wide" style={{ color: 'var(--text-secondary)' }}>
             Recent Reports
           </h2>
 
           {recentReports.length === 0 ? (
-            <div className="text-center py-16 text-gray-400 dark:text-gray-500">
+            <div className="text-center py-16" style={{ color: 'var(--text-muted)' }}>
               <FileText size={40} className="mx-auto mb-3 opacity-40" />
               <p className="text-sm">No reports generated yet.</p>
               <p className="text-xs mt-1">Select a report type and click Generate.</p>
@@ -281,37 +290,42 @@ const ReportsPage: React.FC = () => {
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-100 dark:border-gray-700">
-                  <th className="text-left py-2 px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                <tr className="border-b" style={{ borderColor: 'var(--border-light)' }}>
+                  <th className="text-left py-2 px-3 text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>
                     Report Title
                   </th>
-                  <th className="text-left py-2 px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                  <th className="text-left py-2 px-3 text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>
                     Type
                   </th>
-                  <th className="text-left py-2 px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                  <th className="text-left py-2 px-3 text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>
                     Date
                   </th>
-                  <th className="py-2 px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                  <th className="py-2 px-3 text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>
                     Action
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50 dark:divide-gray-700">
+              <tbody>
                 {recentReports.map((r, i) => (
-                  <tr key={i} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                    <td className="py-3 px-3 font-medium text-gray-800 dark:text-gray-200">
+                  <tr
+                    key={i}
+                    className="border-b transition-colors"
+                    style={{ borderColor: 'var(--border-light)' }}
+                    onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--table-row-hover)')}
+                    onMouseLeave={e => (e.currentTarget.style.backgroundColor = '')}
+                  >
+                    <td className="py-3 px-3 font-medium" style={{ color: 'var(--text-primary)' }}>
                       {r.title}
                     </td>
                     <td className="py-3 px-3">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-green-100 text-green-700 border border-green-200">
                         {r.type}
                       </span>
                     </td>
-                    <td className="py-3 px-3 text-gray-500 dark:text-gray-400">{r.date}</td>
+                    <td className="py-3 px-3" style={{ color: 'var(--text-muted)' }}>{r.date}</td>
                     <td className="py-3 px-3 text-center">
                       <button
                         onClick={() => {
-                          /* Re-generate the report */
                           const prev = selectedType;
                           const match = REPORT_TYPES.find(rt => rt.label === r.title);
                           if (match) {
@@ -320,7 +334,10 @@ const ReportsPage: React.FC = () => {
                           }
                           setSelectedType(prev);
                         }}
-                        className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                        className="p-1.5 rounded-lg text-blue-600 transition-colors"
+                        style={{ backgroundColor: 'transparent' }}
+                        onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--accent-light)')}
+                        onMouseLeave={e => (e.currentTarget.style.backgroundColor = '')}
                         title="Re-download"
                       >
                         <Download size={16} />

@@ -17,7 +17,7 @@ const Layout: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="flex min-h-screen" style={{ backgroundColor: 'var(--bg-secondary)' }}>
       <Sidebar onLogout={() => setIsLogoutModalOpen(true)} />
       <div className="flex-1">
         <Outlet />

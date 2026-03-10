@@ -70,18 +70,29 @@ const ScheduleInterviewModal: React.FC<Props> = ({ isOpen, onClose, onScheduled,
 
   if (!isOpen) return null;
 
+  const labelStyle: React.CSSProperties = { color: 'var(--text-secondary)' };
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+      <div
+        className="rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
+        style={{ backgroundColor: 'var(--bg-card)' }}
+      >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800 z-10">
+        <div
+          className="flex items-center justify-between px-6 py-4 border-b sticky top-0 z-10"
+          style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border)' }}
+        >
           <div className="flex items-center gap-2">
             <Calendar size={18} className="text-blue-600" />
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Schedule Interview</h2>
+            <h2 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>Schedule Interview</h2>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="p-1.5 rounded-lg transition-colors"
+            style={{ color: 'var(--text-muted)' }}
+            onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--bg-hover)')}
+            onMouseLeave={e => (e.currentTarget.style.backgroundColor = '')}
           >
             <X size={18} />
           </button>
@@ -91,16 +102,16 @@ const ScheduleInterviewModal: React.FC<Props> = ({ isOpen, onClose, onScheduled,
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {/* Application */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium mb-1" style={labelStyle}>
               Application <span className="text-red-500">*</span>
             </label>
             {loadingApps ? (
-              <div className="text-sm text-gray-400">Loading applications...</div>
+              <div className="text-sm" style={{ color: 'var(--text-muted)' }}>Loading applications...</div>
             ) : (
               <select
                 value={form.application_id}
                 onChange={e => handleChange('application_id', e.target.value)}
-                className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="themed-select w-full rounded-lg px-3 py-2 text-sm"
                 required
               >
                 <option value="">— Select an application —</option>
@@ -116,26 +127,26 @@ const ScheduleInterviewModal: React.FC<Props> = ({ isOpen, onClose, onScheduled,
           {/* Date + Time */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium mb-1" style={labelStyle}>
                 Date <span className="text-red-500">*</span>
               </label>
               <input
                 type="date"
                 value={form.interview_date}
                 onChange={e => handleChange('interview_date', e.target.value)}
-                className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="themed-input w-full rounded-lg px-3 py-2 text-sm"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium mb-1" style={labelStyle}>
                 Time <span className="text-red-500">*</span>
               </label>
               <input
                 type="time"
                 value={form.interview_time}
                 onChange={e => handleChange('interview_time', e.target.value)}
-                className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="themed-input w-full rounded-lg px-3 py-2 text-sm"
                 required
               />
             </div>
@@ -143,7 +154,7 @@ const ScheduleInterviewModal: React.FC<Props> = ({ isOpen, onClose, onScheduled,
 
           {/* Interview Type */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium mb-1" style={labelStyle}>
               Interview Type <span className="text-red-500">*</span>
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -152,11 +163,16 @@ const ScheduleInterviewModal: React.FC<Props> = ({ isOpen, onClose, onScheduled,
                   key={type}
                   type="button"
                   onClick={() => handleChange('interview_type', type)}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     form.interview_type === type
                       ? 'bg-blue-600 border-blue-600 text-white'
-                      : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-blue-400 dark:hover:border-blue-500'
+                      : ''
                   }`}
+                  style={form.interview_type !== type ? {
+                    border: '1px solid var(--border)',
+                    color: 'var(--text-secondary)',
+                    backgroundColor: 'transparent',
+                  } : { border: '1px solid transparent' }}
                 >
                   {type}
                 </button>
@@ -166,7 +182,7 @@ const ScheduleInterviewModal: React.FC<Props> = ({ isOpen, onClose, onScheduled,
 
           {/* Location */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium mb-1" style={labelStyle}>
               Location / Video Link <span className="text-red-500">*</span>
             </label>
             <input
@@ -174,14 +190,14 @@ const ScheduleInterviewModal: React.FC<Props> = ({ isOpen, onClose, onScheduled,
               value={form.location}
               onChange={e => handleChange('location', e.target.value)}
               placeholder="e.g. Room 302 or https://meet.google.com/..."
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="themed-input w-full rounded-lg px-3 py-2 text-sm"
               required
             />
           </div>
 
           {/* Interviewer Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium mb-1" style={labelStyle}>
               Interviewer Name
             </label>
             <input
@@ -189,13 +205,13 @@ const ScheduleInterviewModal: React.FC<Props> = ({ isOpen, onClose, onScheduled,
               value={form.interviewer_name}
               onChange={e => handleChange('interviewer_name', e.target.value)}
               placeholder="e.g. Dr. Santos"
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="themed-input w-full rounded-lg px-3 py-2 text-sm"
             />
           </div>
 
           {/* Notes */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium mb-1" style={labelStyle}>
               Notes
             </label>
             <textarea
@@ -203,12 +219,12 @@ const ScheduleInterviewModal: React.FC<Props> = ({ isOpen, onClose, onScheduled,
               onChange={e => handleChange('notes', e.target.value)}
               rows={3}
               placeholder="Additional instructions or preparation notes..."
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              className="themed-input w-full rounded-lg px-3 py-2 text-sm resize-none"
             />
           </div>
 
           {error && (
-            <div className="text-sm text-red-600 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
+            <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
               {error}
             </div>
           )}
@@ -218,7 +234,12 @@ const ScheduleInterviewModal: React.FC<Props> = ({ isOpen, onClose, onScheduled,
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              className="flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+              style={{
+                border: '1px solid var(--border)',
+                color: 'var(--text-secondary)',
+                backgroundColor: 'var(--bg-tertiary)',
+              }}
             >
               Cancel
             </button>

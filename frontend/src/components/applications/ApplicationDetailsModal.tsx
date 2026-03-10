@@ -51,7 +51,6 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
         status: newStatus,
         note: note || undefined,
       });
-      // Optimistically update local state so modal reflects change immediately
       setLocalApplication((prev) => ({
         ...prev,
         status: newStatus as Application['status'],
@@ -98,13 +97,20 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+      <div
+        className="rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+        style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}
+      >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900">Application Details</h2>
+        <div
+          className="flex items-center justify-between p-6 border-b"
+          style={{ borderColor: 'var(--border)' }}
+        >
+          <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Application Details</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="transition-colors"
+            style={{ color: 'var(--text-muted)' }}
           >
             <X size={24} />
           </button>
@@ -126,10 +132,10 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
 
           {/* Job Information */}
           <div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">
+            <h3 className="text-xl font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>
               {localApplication.job_posting?.job_title}
             </h3>
-            <div className="flex flex-wrap gap-4 text-gray-600">
+            <div className="flex flex-wrap gap-4" style={{ color: 'var(--text-muted)' }}>
               <span className="flex items-center gap-2">
                 <Building2 size={18} />
                 {localApplication.job_posting?.department}
@@ -149,18 +155,23 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
           {localApplication.cover_letter && (
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <FileText size={18} className="text-gray-600" />
-                <h4 className="font-semibold text-gray-900">Cover Letter</h4>
+                <FileText size={18} style={{ color: 'var(--text-muted)' }} />
+                <h4 className="font-semibold" style={{ color: 'var(--text-primary)' }}>Cover Letter</h4>
               </div>
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                <p className="text-gray-700 whitespace-pre-wrap">{localApplication.cover_letter}</p>
+              <div
+                className="rounded-lg p-4"
+                style={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border)' }}
+              >
+                <p className="whitespace-pre-wrap" style={{ color: 'var(--text-secondary)' }}>
+                  {localApplication.cover_letter}
+                </p>
               </div>
             </div>
           )}
 
           {/* Timeline */}
           <div>
-            <h4 className="font-semibold text-gray-900 mb-4">Application Timeline</h4>
+            <h4 className="font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Application Timeline</h4>
             <TimelineView timeline={localApplication.timeline} />
           </div>
 
@@ -169,7 +180,7 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
             <div className="space-y-5">
               {/* Status buttons */}
               <div>
-                <h4 className="font-semibold text-gray-900 mb-3">Update Status</h4>
+                <h4 className="font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Update Status</h4>
                 {statusError && (
                   <p className="text-red-600 text-sm mb-2">{statusError}</p>
                 )}
@@ -178,7 +189,7 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
                   onChange={(e) => setStatusNote(e.target.value)}
                   placeholder="Add a note for this status change (optional)..."
                   rows={2}
-                  className="w-full mb-3 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  className="themed-input w-full mb-3 px-3 py-2 rounded-lg text-sm resize-none"
                 />
                 <div className="flex flex-wrap gap-2">
                   {HR_ADMIN_STATUSES.map((status) => (
@@ -196,7 +207,7 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
 
               {/* Recruitment Stage */}
               <div>
-                <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                <h4 className="font-semibold mb-2 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
                   <ArrowRight size={16} className="text-blue-600" />
                   Recruitment Stage
                   {localApplication.recruitment_stage && (
@@ -211,11 +222,16 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
                       key={stage}
                       onClick={() => handleStageChange(stage)}
                       disabled={localApplication.recruitment_stage === stage || updatingStage}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors disabled:cursor-not-allowed ${
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors disabled:cursor-not-allowed ${
                         localApplication.recruitment_stage === stage
                           ? 'bg-blue-600 border-blue-600 text-white opacity-80'
-                          : 'border-gray-300 text-gray-600 hover:border-blue-400 hover:text-blue-600'
+                          : ''
                       }`}
+                      style={localApplication.recruitment_stage !== stage ? {
+                        border: '1px solid var(--border)',
+                        color: 'var(--text-secondary)',
+                        backgroundColor: 'transparent',
+                      } : { border: '1px solid transparent' }}
                     >
                       {stage}
                     </button>
@@ -227,10 +243,14 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200">
+        <div
+          className="flex items-center justify-end gap-3 p-6 border-t"
+          style={{ borderColor: 'var(--border)' }}
+        >
           <button
             onClick={onClose}
-            className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            className="px-6 py-2 rounded-lg transition-colors"
+            style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)', backgroundColor: 'var(--bg-tertiary)' }}
           >
             Close
           </button>

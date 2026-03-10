@@ -17,11 +17,14 @@ interface MyInterview {
   notes?: string;
 }
 
-const statusColors: Record<string, string> = {
-  Scheduled:   'bg-blue-100 text-blue-800',
-  Completed:   'bg-gray-100 text-gray-800',
-  Cancelled:   'bg-red-100 text-red-800',
-  Rescheduled: 'bg-yellow-100 text-yellow-800',
+const statusStyle = (status: string): React.CSSProperties => {
+  switch (status) {
+    case 'Scheduled':   return { backgroundColor: '#dbeafe', color: '#1d4ed8' };
+    case 'Completed':   return { backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-secondary)' };
+    case 'Cancelled':   return { backgroundColor: '#fee2e2', color: '#b91c1c' };
+    case 'Rescheduled': return { backgroundColor: '#fef9c3', color: '#92400e' };
+    default:            return { backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-secondary)' };
+  }
 };
 
 type Tab = 'upcoming' | 'past' | 'calendar';
@@ -82,14 +85,14 @@ const MyInterviewsPage: React.FC = () => {
   }
 
   return (
-    <div className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <div className="p-6 min-h-screen" style={{ backgroundColor: 'var(--bg-secondary)' }}>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">My Interviews</h1>
-        <p className="text-gray-600 dark:text-gray-400">View and prepare for your upcoming interviews</p>
+        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>My Interviews</h1>
+        <p style={{ color: 'var(--text-muted)' }}>View and prepare for your upcoming interviews</p>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex gap-1 mb-6 border-b" style={{ borderColor: 'var(--border)' }}>
         {tabs.map(tab => (
           <button
             key={tab.key}
@@ -97,8 +100,9 @@ const MyInterviewsPage: React.FC = () => {
             className={`flex items-center gap-2 px-4 pb-3 pt-1 font-medium text-sm transition-colors border-b-2 ${
               activeTab === tab.key
                 ? 'text-blue-600 border-blue-600'
-                : 'text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-200'
+                : 'border-transparent'
             }`}
+            style={activeTab !== tab.key ? { color: 'var(--text-muted)' } : {}}
           >
             {tab.icon}
             {tab.label}
@@ -119,54 +123,67 @@ const MyInterviewsPage: React.FC = () => {
       {activeTab === 'upcoming' && (
         <>
           {upcomingInterviews.length === 0 ? (
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-12 text-center">
+            <div
+              className="rounded-lg p-12 text-center"
+              style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}
+            >
               <Calendar className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">No upcoming interviews</h3>
-              <p className="mt-2 text-gray-500 dark:text-gray-400">
+              <h3 className="mt-4 text-lg font-medium" style={{ color: 'var(--text-primary)' }}>No upcoming interviews</h3>
+              <p className="mt-2" style={{ color: 'var(--text-muted)' }}>
                 When you're shortlisted for a position, your interview details will appear here.
               </p>
             </div>
           ) : (
             <div className="space-y-4">
               {upcomingInterviews.map((interview) => (
-                <div key={interview.id} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                <div
+                  key={interview.id}
+                  className="rounded-lg p-6"
+                  style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}
+                >
                   <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{interview.job_title}</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1 mt-1">
+                      <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>{interview.job_title}</h3>
+                      <p className="text-sm flex items-center gap-1 mt-1" style={{ color: 'var(--text-muted)' }}>
                         <Building2 size={14} />
                         {interview.department}
                       </p>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${statusColors[interview.status] || 'bg-gray-100 text-gray-800'}`}>
+                    <span
+                      className="px-3 py-1 rounded-full text-sm font-medium"
+                      style={statusStyle(interview.status)}
+                    >
                       {interview.status}
                     </span>
                   </div>
                   <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-                      <Calendar size={16} className="text-gray-400" />
+                    <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                      <Calendar size={16} style={{ color: 'var(--text-muted)' }} />
                       <span>{formatDate(interview.interview_date)}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-                      <Clock size={16} className="text-gray-400" />
+                    <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                      <Clock size={16} style={{ color: 'var(--text-muted)' }} />
                       <span>{interview.interview_time}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+                    <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
                       {interview.interview_type === 'Video' ? (
-                        <Video size={16} className="text-gray-400" />
+                        <Video size={16} style={{ color: 'var(--text-muted)' }} />
                       ) : (
-                        <MapPin size={16} className="text-gray-400" />
+                        <MapPin size={16} style={{ color: 'var(--text-muted)' }} />
                       )}
                       <span>{interview.location}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-                      <User size={16} className="text-gray-400" />
+                    <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                      <User size={16} style={{ color: 'var(--text-muted)' }} />
                       <span>{interview.interviewer_name || '—'}</span>
                     </div>
                   </div>
                   {interview.notes && (
-                    <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                      <p className="text-sm text-blue-700 dark:text-blue-300">{interview.notes}</p>
+                    <div
+                      className="mt-4 p-3 rounded-lg"
+                      style={{ backgroundColor: 'var(--accent-light)' }}
+                    >
+                      <p className="text-sm" style={{ color: 'var(--text-active)' }}>{interview.notes}</p>
                     </div>
                   )}
                 </div>
@@ -180,24 +197,34 @@ const MyInterviewsPage: React.FC = () => {
       {activeTab === 'past' && (
         <>
           {pastInterviews.length === 0 ? (
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-12 text-center">
+            <div
+              className="rounded-lg p-12 text-center"
+              style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}
+            >
               <Calendar className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">No past interviews</h3>
+              <h3 className="mt-4 text-lg font-medium" style={{ color: 'var(--text-primary)' }}>No past interviews</h3>
             </div>
           ) : (
             <div className="space-y-4">
               {pastInterviews.map((interview) => (
-                <div key={interview.id} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 opacity-75">
+                <div
+                  key={interview.id}
+                  className="rounded-lg p-6 opacity-75"
+                  style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}
+                >
                   <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{interview.job_title}</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{interview.department}</p>
+                      <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>{interview.job_title}</h3>
+                      <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{interview.department}</p>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${statusColors[interview.status] || 'bg-gray-100 text-gray-800'}`}>
+                    <span
+                      className="px-3 py-1 rounded-full text-sm font-medium"
+                      style={statusStyle(interview.status)}
+                    >
                       {interview.status}
                     </span>
                   </div>
-                  <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                  <div className="mt-2 text-sm" style={{ color: 'var(--text-muted)' }}>
                     {formatDate(interview.interview_date)} at {interview.interview_time}
                   </div>
                 </div>

@@ -2,11 +2,125 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  body {
-    @apply bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-gray-100;
-  }
+/* ─── CSS Custom Properties (time-sheet-app pattern) ───────────────────────── */
+
+:root.light {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --bg-tertiary: #f3f4f6;
+  --bg-hover: #e5e7eb;
+  --bg-card: #ffffff;
+  --text-primary: #111827;
+  --text-secondary: #374151;
+  --text-muted: #6b7280;
+  --text-active: #2563eb;
+  --border: #e5e7eb;
+  --border-light: #f3f4f6;
+  --accent: #2563eb;
+  --accent-light: #dbeafe;
+  --accent-hover: #1d4ed8;
+  --input-bg: #ffffff;
+  --input-border: #d1d5db;
+  --status-pending-bg: #fefce8;
+  --status-pending-text: #854d0e;
+  --status-inprocess-bg: #eff6ff;
+  --status-inprocess-text: #1d4ed8;
+  --status-accepted-bg: #f0fdf4;
+  --status-accepted-text: #15803d;
+  --status-rejected-bg: #fef2f2;
+  --status-rejected-text: #b91c1c;
+  --status-withdrawn-bg: #f3f4f6;
+  --status-withdrawn-text: #374151;
+  --table-header-bg: #f9fafb;
+  --table-row-hover: #f9fafb;
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
 }
+
+:root.dark {
+  --bg-primary: #1e293b;
+  --bg-secondary: #0f172a;
+  --bg-tertiary: #273549;
+  --bg-hover: #2d3f55;
+  --bg-card: #1e293b;
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-active: #60a5fa;
+  --border: #2d3f55;
+  --border-light: #273549;
+  --accent: #3b82f6;
+  --accent-light: #1e3a5f;
+  --accent-hover: #1e40af;
+  --input-bg: #273549;
+  --input-border: #2d3f55;
+  --status-pending-bg: #422006;
+  --status-pending-text: #fde68a;
+  --status-inprocess-bg: #1e3a5f;
+  --status-inprocess-text: #93c5fd;
+  --status-accepted-bg: #14532d;
+  --status-accepted-text: #86efac;
+  --status-rejected-bg: #7f1d1d;
+  --status-rejected-text: #fca5a5;
+  --status-withdrawn-bg: #1e293b;
+  --status-withdrawn-text: #94a3b8;
+  --table-header-bg: #273549;
+  --table-row-hover: #2d3f55;
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.4);
+}
+
+/* ─── Base ──────────────────────────────────────────────────────────────────── */
+
+body {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ─── Themed utility classes ─────────────────────────────────────────────────*/
+
+.themed-page {
+  background-color: var(--bg-secondary);
+  min-height: 100vh;
+  transition: background-color 0.3s ease;
+}
+
+.themed-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+.themed-input {
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.themed-input:focus {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: 0 0 0 2px var(--accent-light);
+}
+
+.themed-input::placeholder {
+  color: var(--text-muted);
+}
+
+.themed-select {
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.themed-select:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+/* ─── Legacy modal helpers (kept for compatibility) ─────────────────────────*/
 
 @layer components {
   .modal-overlay {
@@ -14,7 +128,9 @@
   }
 
   .modal-content {
-    @apply bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    @apply rounded-xl shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto;
   }
 
   .btn-primary {
@@ -22,7 +138,10 @@
   }
 
   .btn-secondary {
-    @apply bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium px-4 py-2 rounded transition-colors;
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    @apply font-medium px-4 py-2 rounded transition-colors;
   }
 
   .btn-danger {

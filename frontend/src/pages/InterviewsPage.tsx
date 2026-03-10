@@ -81,11 +81,11 @@ const InterviewsPage: React.FC = () => {
   ];
 
   return (
-    <div className="p-8 bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <div className="p-8 min-h-screen" style={{ backgroundColor: 'var(--bg-secondary)' }}>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">Interviews</h1>
-          <p className="text-gray-600 dark:text-gray-400">Manage your interview schedule</p>
+          <h1 className="text-3xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>Interviews</h1>
+          <p style={{ color: 'var(--text-muted)' }}>Manage your interview schedule</p>
         </div>
         <button
           onClick={() => { setPrefillDate(undefined); setIsScheduleModalOpen(true); }}
@@ -97,7 +97,7 @@ const InterviewsPage: React.FC = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex gap-1 mb-6 border-b" style={{ borderColor: 'var(--border)' }}>
         {tabs.map(tab => (
           <button
             key={tab.key}
@@ -105,8 +105,9 @@ const InterviewsPage: React.FC = () => {
             className={`flex items-center gap-2 px-4 pb-3 pt-1 font-medium text-sm transition-colors border-b-2 ${
               activeTab === tab.key
                 ? 'text-blue-600 border-blue-600'
-                : 'text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-200'
+                : 'border-transparent'
             }`}
+            style={activeTab !== tab.key ? { color: 'var(--text-muted)' } : {}}
           >
             {tab.icon}
             {tab.label}
@@ -130,17 +131,20 @@ const InterviewsPage: React.FC = () => {
           {loading && (
             <div className="text-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="text-gray-600 dark:text-gray-400 mt-4">Loading interviews...</p>
+              <p className="mt-4" style={{ color: 'var(--text-muted)' }}>Loading interviews...</p>
             </div>
           )}
 
           {!loading && interviews.length === 0 && (
-            <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700">
+            <div
+              className="text-center py-12 rounded-xl border-2 border-dashed"
+              style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border)' }}
+            >
               <Calendar size={48} className="mx-auto text-gray-400 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
                 No {activeTab} interviews
               </h3>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p style={{ color: 'var(--text-muted)' }}>
                 {activeTab === 'upcoming'
                   ? 'You have no scheduled interviews at the moment.'
                   : 'You have not completed any interviews yet.'}

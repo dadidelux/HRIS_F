@@ -9,18 +9,18 @@ interface Props {
   onSelectDate?: (date: string) => void; // YYYY-MM-DD, called only when not readonly
 }
 
-const TYPE_COLORS: Record<string, string> = {
-  Phone:     'bg-blue-500 text-white',
-  Video:     'bg-purple-500 text-white',
-  'In-Person': 'bg-green-500 text-white',
-  Panel:     'bg-orange-500 text-white',
+const TYPE_COLORS: Record<string, { bg: string; text: string }> = {
+  Phone:       { bg: '#3b82f6', text: '#fff' },
+  Video:       { bg: '#8b5cf6', text: '#fff' },
+  'In-Person': { bg: '#22c55e', text: '#fff' },
+  Panel:       { bg: '#f97316', text: '#fff' },
 };
 
 const TYPE_ICONS: Record<string, React.ReactNode> = {
-  Phone:     <Phone size={10} />,
-  Video:     <Video size={10} />,
+  Phone:       <Phone size={10} />,
+  Video:       <Video size={10} />,
   'In-Person': <User size={10} />,
-  Panel:     <Users size={10} />,
+  Panel:       <Users size={10} />,
 };
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -46,13 +46,12 @@ const InterviewCalendar: React.FC<Props> = ({
   // Build a map: date string → Interview[]
   const interviewsByDate = new Map<string, Interview[]>();
   for (const iv of interviews) {
-    const key = iv.interview_date; // already "YYYY-MM-DD" from backend
+    const key = iv.interview_date;
     if (!interviewsByDate.has(key)) interviewsByDate.set(key, []);
     interviewsByDate.get(key)!.push(iv);
   }
 
-  // Calendar grid computation
-  const firstDay = new Date(viewYear, viewMonth, 1).getDay(); // 0=Sun
+  const firstDay = new Date(viewYear, viewMonth, 1).getDay();
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
   const todayStr = toYMD(today);
 
@@ -65,12 +64,10 @@ const InterviewCalendar: React.FC<Props> = ({
     else setViewMonth(m => m + 1);
   };
 
-  // Build grid cells: null = empty padding
   const cells: (number | null)[] = [
     ...Array(firstDay).fill(null),
     ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
   ];
-  // Pad to complete last row
   while (cells.length % 7 !== 0) cells.push(null);
 
   const handleDayClick = (day: number) => {
@@ -83,30 +80,46 @@ const InterviewCalendar: React.FC<Props> = ({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+    <div
+      className="rounded-xl shadow-sm overflow-hidden"
+      style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}
+    >
       {/* Calendar header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700">
+      <div
+        className="flex items-center justify-between px-5 py-4 border-b"
+        style={{ borderColor: 'var(--border)' }}
+      >
         <button
           onClick={prevMonth}
-          className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors"
+          className="p-1.5 rounded-lg transition-colors"
+          style={{ color: 'var(--text-secondary)' }}
+          onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--bg-hover)')}
+          onMouseLeave={e => (e.currentTarget.style.backgroundColor = '')}
         >
           <ChevronLeft size={20} />
         </button>
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+        <h2 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
           {MONTHS[viewMonth]} {viewYear}
         </h2>
         <button
           onClick={nextMonth}
-          className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors"
+          className="p-1.5 rounded-lg transition-colors"
+          style={{ color: 'var(--text-secondary)' }}
+          onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--bg-hover)')}
+          onMouseLeave={e => (e.currentTarget.style.backgroundColor = '')}
         >
           <ChevronRight size={20} />
         </button>
       </div>
 
       {/* Day-of-week headers */}
-      <div className="grid grid-cols-7 border-b border-gray-100 dark:border-gray-700">
+      <div className="grid grid-cols-7 border-b" style={{ borderColor: 'var(--border)' }}>
         {DAYS.map(d => (
-          <div key={d} className="py-2 text-center text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide">
+          <div
+            key={d}
+            className="py-2 text-center text-xs font-semibold uppercase tracking-wide"
+            style={{ color: 'var(--text-muted)' }}
+          >
             {d}
           </div>
         ))}
@@ -116,7 +129,17 @@ const InterviewCalendar: React.FC<Props> = ({
       <div className="grid grid-cols-7">
         {cells.map((day, idx) => {
           if (day === null) {
-            return <div key={`pad-${idx}`} className="min-h-[90px] border-b border-r border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30" />;
+            return (
+              <div
+                key={`pad-${idx}`}
+                className="min-h-[90px]"
+                style={{
+                  borderBottom: '1px solid var(--border-light)',
+                  borderRight: (idx + 1) % 7 === 0 ? 'none' : '1px solid var(--border-light)',
+                  backgroundColor: 'var(--bg-secondary)',
+                }}
+              />
+            );
           }
           const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
           const dayInterviews = interviewsByDate.get(dateStr) || [];
@@ -127,40 +150,51 @@ const InterviewCalendar: React.FC<Props> = ({
             <div
               key={dateStr}
               onClick={() => handleDayClick(day)}
-              className={`
-                min-h-[90px] p-1.5 border-b border-r border-gray-100 dark:border-gray-700
-                ${isLastCol ? 'border-r-0' : ''}
-                ${!readonly && dayInterviews.length === 0 ? 'cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20' : ''}
-                transition-colors
-              `}
+              className="min-h-[90px] p-1.5 transition-colors"
+              style={{
+                borderBottom: '1px solid var(--border-light)',
+                borderRight: isLastCol ? 'none' : '1px solid var(--border-light)',
+                cursor: !readonly && dayInterviews.length === 0 ? 'pointer' : 'default',
+              }}
+              onMouseEnter={e => {
+                if (!readonly && dayInterviews.length === 0) {
+                  (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--accent-light)';
+                }
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLElement).style.backgroundColor = '';
+              }}
             >
               {/* Day number */}
-              <div className={`
-                inline-flex items-center justify-center w-7 h-7 rounded-full text-sm font-medium mb-1
-                ${isToday ? 'bg-blue-600 text-white' : 'text-gray-700 dark:text-gray-300'}
-              `}>
+              <div
+                className="inline-flex items-center justify-center w-7 h-7 rounded-full text-sm font-medium mb-1"
+                style={{
+                  backgroundColor: isToday ? '#2563eb' : 'transparent',
+                  color: isToday ? '#fff' : 'var(--text-secondary)',
+                }}
+              >
                 {day}
               </div>
 
               {/* Interview event chips */}
               <div className="space-y-0.5">
-                {dayInterviews.slice(0, 3).map(iv => (
-                  <button
-                    key={iv.id}
-                    onClick={e => { e.stopPropagation(); onSelectInterview(iv); }}
-                    className={`
-                      w-full flex items-center gap-1 px-1.5 py-0.5 rounded text-left text-xs font-medium truncate
-                      ${TYPE_COLORS[iv.interview_type] || 'bg-gray-500 text-white'}
-                      hover:opacity-80 transition-opacity
-                    `}
-                    title={`${iv.interview_type} — ${iv.interview_time}`}
-                  >
-                    {TYPE_ICONS[iv.interview_type]}
-                    <span className="truncate">{iv.interview_time}</span>
-                  </button>
-                ))}
+                {dayInterviews.slice(0, 3).map(iv => {
+                  const tc = TYPE_COLORS[iv.interview_type] || { bg: '#6b7280', text: '#fff' };
+                  return (
+                    <button
+                      key={iv.id}
+                      onClick={e => { e.stopPropagation(); onSelectInterview(iv); }}
+                      className="w-full flex items-center gap-1 px-1.5 py-0.5 rounded text-left text-xs font-medium truncate hover:opacity-80 transition-opacity"
+                      style={{ backgroundColor: tc.bg, color: tc.text }}
+                      title={`${iv.interview_type} — ${iv.interview_time}`}
+                    >
+                      {TYPE_ICONS[iv.interview_type]}
+                      <span className="truncate">{iv.interview_time}</span>
+                    </button>
+                  );
+                })}
                 {dayInterviews.length > 3 && (
-                  <p className="text-xs text-gray-500 dark:text-gray-400 pl-1">
+                  <p className="text-xs pl-1" style={{ color: 'var(--text-muted)' }}>
                     +{dayInterviews.length - 3} more
                   </p>
                 )}
@@ -171,15 +205,18 @@ const InterviewCalendar: React.FC<Props> = ({
       </div>
 
       {/* Legend */}
-      <div className="flex flex-wrap gap-4 px-5 py-3 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30">
-        {Object.entries(TYPE_COLORS).map(([type, cls]) => (
-          <div key={type} className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400">
-            <span className={`w-3 h-3 rounded-sm ${cls}`} />
+      <div
+        className="flex flex-wrap gap-4 px-5 py-3 border-t"
+        style={{ borderColor: 'var(--border)', backgroundColor: 'var(--bg-secondary)' }}
+      >
+        {Object.entries(TYPE_COLORS).map(([type, colors]) => (
+          <div key={type} className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>
+            <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: colors.bg }} />
             {type}
           </div>
         ))}
         {!readonly && (
-          <div className="ml-auto text-xs text-gray-400 dark:text-gray-500 italic">
+          <div className="ml-auto text-xs italic" style={{ color: 'var(--text-muted)' }}>
             Click an empty day to schedule
           </div>
         )}

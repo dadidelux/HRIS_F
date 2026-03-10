@@ -39,7 +39,7 @@ interface MenuItem {
 const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const { user } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+  const { darkMode, toggleTheme } = useTheme();
 
   // Define all menu items with role access
   const allMenuItems: MenuItem[] = [
@@ -131,20 +131,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
         </div>
       )}
 
-      {/* Theme Toggle */}
-      <div className="px-4 py-3 border-t border-[#144272]">
-        <button
-          onClick={toggleTheme}
-          className="w-full flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-[#144272] transition-colors text-gray-300 hover:text-white"
-          title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-        >
-          {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-          <span className="text-sm font-medium">
-            {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
-          </span>
-        </button>
-      </div>
-
       {/* Menu Items */}
       <nav className="flex-1 p-4">
         <ul className="space-y-2">
@@ -170,6 +156,20 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
           })}
         </ul>
       </nav>
+
+      {/* Theme Toggle — bottom of sidebar */}
+      <div className="px-4 py-3 border-t border-[#144272]">
+        <button
+          onClick={toggleTheme}
+          className="w-full flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-[#144272] transition-colors text-gray-300 hover:text-white"
+          title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+        >
+          {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+          <span className="text-sm font-medium">
+            {darkMode ? 'Light Mode' : 'Dark Mode'}
+          </span>
+        </button>
+      </div>
     </div>
   );
 };

@@ -19,7 +19,6 @@ const LineChart: React.FC<{ data: MonthlyCount[] }> = ({ data }) => {
   }));
 
   const polyline = points.map(p => `${p.x},${p.y}`).join(' ');
-  // Area fill path
   const areaPath = [
     `M ${points[0].x} ${PAD.top + chartH}`,
     ...points.map(p => `L ${p.x} ${p.y}`),
@@ -27,7 +26,6 @@ const LineChart: React.FC<{ data: MonthlyCount[] }> = ({ data }) => {
     'Z',
   ].join(' ');
 
-  // Y-axis gridlines
   const gridLines = [0, 0.25, 0.5, 0.75, 1].map(pct => ({
     y: PAD.top + chartH - pct * chartH,
     label: Math.round(pct * maxVal),
@@ -42,7 +40,6 @@ const LineChart: React.FC<{ data: MonthlyCount[] }> = ({ data }) => {
         </linearGradient>
       </defs>
 
-      {/* Grid lines */}
       {gridLines.map((gl, i) => (
         <g key={i}>
           <line
@@ -56,10 +53,8 @@ const LineChart: React.FC<{ data: MonthlyCount[] }> = ({ data }) => {
         </g>
       ))}
 
-      {/* Area */}
       <path d={areaPath} fill="url(#lineGrad)" />
 
-      {/* Line */}
       <polyline
         points={polyline}
         fill="none"
@@ -69,7 +64,6 @@ const LineChart: React.FC<{ data: MonthlyCount[] }> = ({ data }) => {
         strokeLinecap="round"
       />
 
-      {/* Data points + labels */}
       {points.map((p, i) => (
         <g key={i}>
           <circle cx={p.x} cy={p.y} r="3.5" fill="#3b82f6" />
@@ -98,7 +92,7 @@ const DonutChart: React.FC<{ data: SkillDemand[] }> = ({ data }) => {
   const total = data.reduce((s, d) => s + d.count, 0);
   if (total === 0) {
     return (
-      <div className="flex items-center justify-center h-36 text-gray-400 text-sm">
+      <div className="flex items-center justify-center h-36 text-sm" style={{ color: 'var(--text-muted)' }}>
         No skills data yet
       </div>
     );
@@ -119,7 +113,6 @@ const DonutChart: React.FC<{ data: SkillDemand[] }> = ({ data }) => {
     return slice;
   });
 
-  // Inner hole
   const innerR = 32;
 
   return (
@@ -127,12 +120,11 @@ const DonutChart: React.FC<{ data: SkillDemand[] }> = ({ data }) => {
       {slices.map((s, i) => (
         <path key={i} d={s.path} fill={s.color} />
       ))}
-      {/* Hole */}
-      <circle cx={CX} cy={CY} r={innerR} fill="white" className="dark:fill-gray-800" />
-      <text x={CX} y={CY + 4} textAnchor="middle" fontSize="11" fontWeight="600" fill="#374151">
+      <circle cx={CX} cy={CY} r={innerR} fill="var(--bg-card)" />
+      <text x={CX} y={CY + 4} textAnchor="middle" fontSize="11" fontWeight="600" fill="var(--text-primary)">
         {data.length}
       </text>
-      <text x={CX} y={CY + 16} textAnchor="middle" fontSize="8" fill="#9ca3af">
+      <text x={CX} y={CY + 16} textAnchor="middle" fontSize="8" fill="var(--text-muted)">
         skills
       </text>
     </svg>
@@ -157,15 +149,15 @@ const AnalyticsPage: React.FC = () => {
   }, [year]);
 
   return (
-    <div className="p-8 bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <div className="p-8 min-h-screen" style={{ backgroundColor: 'var(--bg-secondary)' }}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <h1 className="text-2xl font-bold flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
             <BarChart3 size={24} className="text-blue-600" />
             Analytics
           </h1>
-          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+          <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
             Recruitment performance insights
           </p>
         </div>
@@ -173,7 +165,7 @@ const AnalyticsPage: React.FC = () => {
         <select
           value={year}
           onChange={e => setYear(Number(e.target.value))}
-          className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="themed-select rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
         >
           {YEARS.map(y => (
             <option key={y} value={y}>{y}</option>
@@ -186,35 +178,35 @@ const AnalyticsPage: React.FC = () => {
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600" />
         </div>
       ) : !data ? (
-        <div className="text-center text-gray-500 py-12">Failed to load analytics.</div>
+        <div className="text-center py-12" style={{ color: 'var(--text-muted)' }}>Failed to load analytics.</div>
       ) : (
         <div className="space-y-6">
           {/* Stat cards row */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard
               icon={<TrendingUp size={20} className="text-blue-600" />}
-              bg="bg-blue-50 dark:bg-blue-900/20"
+              bg="bg-blue-50"
               label="Total Applicants"
               value={data.total_applicants}
               suffix=""
             />
             <StatCard
               icon={<BarChart3 size={20} className="text-purple-600" />}
-              bg="bg-purple-50 dark:bg-purple-900/20"
+              bg="bg-purple-50"
               label="For Interview"
               value={data.for_interview}
               suffix=""
             />
             <StatCard
               icon={<TrendingUp size={20} className="text-green-600" />}
-              bg="bg-green-50 dark:bg-green-900/20"
+              bg="bg-green-50"
               label="Positions Filled"
               value={data.positions_filled}
               suffix=""
             />
             <StatCard
               icon={<Percent size={20} className="text-orange-600" />}
-              bg="bg-orange-50 dark:bg-orange-900/20"
+              bg="bg-orange-50"
               label="Offer Rate"
               value={data.offer_rate}
               suffix="%"
@@ -223,17 +215,23 @@ const AnalyticsPage: React.FC = () => {
 
           {/* Charts row */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Line chart — takes 2 cols */}
-            <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 shadow-sm">
-              <h2 className="text-base font-semibold text-gray-800 dark:text-white mb-4">
+            {/* Line chart */}
+            <div
+              className="lg:col-span-2 rounded-xl p-5 shadow-sm"
+              style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}
+            >
+              <h2 className="text-base font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
                 Applicants per Month — {year}
               </h2>
               <LineChart data={data.applicants_per_month} />
             </div>
 
             {/* Donut chart */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 shadow-sm">
-              <h2 className="text-base font-semibold text-gray-800 dark:text-white mb-4">
+            <div
+              className="rounded-xl p-5 shadow-sm"
+              style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}
+            >
+              <h2 className="text-base font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
                 Skills Demand
               </h2>
               <div className="flex items-center gap-4">
@@ -245,8 +243,8 @@ const AnalyticsPage: React.FC = () => {
                         className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                         style={{ backgroundColor: DONUT_COLORS[i % DONUT_COLORS.length] }}
                       />
-                      <span className="text-gray-600 dark:text-gray-300 truncate">{s.skill}</span>
-                      <span className="ml-auto text-gray-400 font-medium pl-1">{s.count}</span>
+                      <span className="truncate" style={{ color: 'var(--text-secondary)' }}>{s.skill}</span>
+                      <span className="ml-auto font-medium pl-1" style={{ color: 'var(--text-muted)' }}>{s.count}</span>
                     </div>
                   ))}
                 </div>
@@ -256,30 +254,36 @@ const AnalyticsPage: React.FC = () => {
 
           {/* Bottom stat cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm flex items-center gap-5">
-              <div className="w-14 h-14 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center flex-shrink-0">
+            <div
+              className="rounded-xl p-6 shadow-sm flex items-center gap-5"
+              style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}
+            >
+              <div className="w-14 h-14 rounded-full bg-teal-100 flex items-center justify-center flex-shrink-0">
                 <Clock size={24} className="text-teal-600" />
               </div>
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Avg. Time to Hire</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Avg. Time to Hire</p>
+                <p className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
                   {data.avg_time_to_hire}
-                  <span className="text-lg font-normal text-gray-500 ml-1">days</span>
+                  <span className="text-lg font-normal ml-1" style={{ color: 'var(--text-muted)' }}>days</span>
                 </p>
               </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm flex items-center gap-5">
-              <div className="w-14 h-14 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center flex-shrink-0">
+            <div
+              className="rounded-xl p-6 shadow-sm flex items-center gap-5"
+              style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}
+            >
+              <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
                 <Percent size={24} className="text-green-600" />
               </div>
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Offer Rate</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Offer Rate</p>
+                <p className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
                   {data.offer_rate}
-                  <span className="text-lg font-normal text-gray-500 ml-1">%</span>
+                  <span className="text-lg font-normal ml-1" style={{ color: 'var(--text-muted)' }}>%</span>
                 </p>
-                <p className="text-xs text-gray-400">
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
                   {data.accepted_applicants} accepted / {data.total_applicants} total
                 </p>
               </div>
@@ -299,13 +303,16 @@ const StatCard: React.FC<{
   value: number;
   suffix: string;
 }> = ({ icon, bg, label, value, suffix }) => (
-  <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 shadow-sm flex items-center gap-4">
+  <div
+    className="rounded-xl p-5 shadow-sm flex items-center gap-4"
+    style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}
+  >
     <div className={`w-11 h-11 rounded-full ${bg} flex items-center justify-center flex-shrink-0`}>
       {icon}
     </div>
     <div>
-      <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
-      <p className="text-2xl font-bold text-gray-900 dark:text-white">
+      <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{label}</p>
+      <p className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
         {value}{suffix}
       </p>
     </div>

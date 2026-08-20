@@ -7,6 +7,7 @@ interface InterviewDetailsModalProps {
   onClose: () => void;
   interview: Interview;
   onReschedule: () => void;
+  onMarkCompleted?: () => void;
 }
 
 const getTypeIcon = (type: string) => {
@@ -44,6 +45,7 @@ const InterviewDetailsModal: React.FC<InterviewDetailsModalProps> = ({
   onClose,
   interview,
   onReschedule,
+  onMarkCompleted,
 }) => {
   if (!isOpen) return null;
 
@@ -71,6 +73,9 @@ const InterviewDetailsModal: React.FC<InterviewDetailsModalProps> = ({
   };
 
   const canReschedule = interview.status === 'Scheduled';
+  const canMarkCompleted =
+    onMarkCompleted !== undefined &&
+    (interview.status === 'Scheduled' || interview.status === 'Rescheduled');
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -158,6 +163,14 @@ const InterviewDetailsModal: React.FC<InterviewDetailsModalProps> = ({
 
           {/* Actions */}
           <div className="flex gap-3 pt-4 border-t">
+            {canMarkCompleted && (
+              <button
+                onClick={onMarkCompleted}
+                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                Mark as Completed
+              </button>
+            )}
             {canReschedule && (
               <button
                 onClick={onReschedule}
@@ -169,7 +182,7 @@ const InterviewDetailsModal: React.FC<InterviewDetailsModalProps> = ({
             <button
               onClick={onClose}
               className={`${
-                canReschedule ? 'flex-1' : 'w-full'
+                canReschedule || canMarkCompleted ? 'flex-1' : 'w-full'
               } px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors`}
             >
               Close

@@ -64,6 +64,14 @@ const InterviewsPage: React.FC = () => {
     setIsRescheduleModalOpen(true);
   };
 
+  const handleMarkCompleted = async () => {
+    if (!selectedInterview) return;
+    await apiService.updateInterview(selectedInterview.id, { status: 'Completed' });
+    await loadInterviews();
+    apiService.getAllInterviews().then(setAllInterviews).catch(() => {});
+    setIsDetailsModalOpen(false);
+  };
+
   const handleDateClick = (date: string) => {
     setPrefillDate(date);
     setIsScheduleModalOpen(true);
@@ -174,6 +182,7 @@ const InterviewsPage: React.FC = () => {
             onClose={() => setIsDetailsModalOpen(false)}
             interview={selectedInterview}
             onReschedule={openRescheduleModal}
+            onMarkCompleted={handleMarkCompleted}
           />
           <RescheduleModal
             isOpen={isRescheduleModalOpen}
